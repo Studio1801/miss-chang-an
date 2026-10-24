@@ -1,12 +1,15 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { ArrowDownRight, ArrowRight, ArrowUpRight, Menu as MenuIcon, X } from 'lucide-react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { ArrowRight, ArrowUpRight, Menu as MenuIcon, Search, X } from 'lucide-react';
 import { Link, Route, Switch, useLocation } from 'wouter';
 import type { Category } from './types/menu';
 import OrderPage from './OrderPage';
 import { RouteAccessibility } from './components/route-accessibility';
+import { useStatus } from './lib/hours';
+import { useReveal } from './lib/reveal';
 
 const ORDER_URL = '/order';
 const MAP_URL = 'https://www.google.com/maps/search/?api=1&query=Miss+Chang+An+5071+Rochester+Rd+Troy+MI+48085';
+const CHOWBUS_URL = 'https://pos.chowbus.com/online-ordering/store/Miss-Chang-An/24125';
 const PHONE = 'tel:+13138257757';
 const ADDRESS = '5071 Rochester Rd, Troy, MI 48085';
 
@@ -65,6 +68,22 @@ const featured = [
   { name: 'Soup dumplings', chinese: '灌汤小笼包', image: 'soup-dumplings.webp', description: 'Six hand-made pork soup dumplings, cooked when you order. Allow 10 to 15 minutes.', price: '$10.99' },
 ];
 
+const thumbs: Record<string, string> = {
+  'Chili oil-splashed noodles': 'chili-oil-noodles.webp',
+  'Cumin lamb roujiamo': 'cumin-lamb-roujiamo.webp',
+  "Xi'an lamb bread soup": 'lamb-bread-soup.webp',
+  'Soup dumplings, 6': 'soup-dumplings.webp',
+};
+
+const faqs: [string, string][] = [
+  ['Are you open on Mondays?', 'No. We are closed Mondays and open 11:30 am to 9:00 pm, Tuesday to Sunday.'],
+  ['How long do soup dumplings take?', 'They are made when you order, so allow 10 to 15 minutes. Crystal shrimp dumplings take the same.'],
+  ['What does SP mean on the menu?', 'SP means spicy. SP2 to SP5 is the spice level out of 5. Dishes with no mark are not spicy.'],
+  ['Is this the old Nook Tea & Cafe?', 'Yes, same room on Rochester Road. We kept the boba and added the noodles.'],
+  ['What about allergies?', 'The kitchen uses wheat, soy, sesame, peanuts, egg and shellfish, so we cannot promise any dish is free of them. Tell us when you order.'],
+  ['Can I order ahead?', 'Yes. Order pickup online on Chowbus, or call (313) 825-7757.'],
+];
+
 const legalContent = {
   privacy: [
     ['What this site collects', 'Pickup details entered into the ordering preview stay on your device and are not sent to the restaurant. This website does not take payments or use advertising or tracking cookies. Our hosting provider keeps standard server logs, such as your IP address and browser type, to keep the site running and secure.'],
@@ -105,6 +124,11 @@ function PageMeta({ title, description }: { title: string; description: string }
     }
   }, [title, description]);
   return null;
+}
+
+function OpenBadge({ tone = 'light' }: { tone?: 'light' | 'dark' }) {
+  const status = useStatus();
+  return <p className={`open-badge ${tone} ${status.open ? 'is-open' : 'is-closed'}`} role="status"><span className="open-dot" aria-hidden="true" /><strong>{status.label}</strong><span>{status.detail}</span></p>;
 }
 
 function Header() {
@@ -166,32 +190,70 @@ function Footer() {
 }
 
 function OrderBand() {
-  return <section className="order-band" aria-labelledby="order-heading"><div className="wrap order-inner"><div><span className="eyebrow">Closed Mondays</span><h2 id="order-heading">Your food.<br />Your order.</h2><p>Choose your dishes, check your basket, then add your pickup details.</p></div><Link href={ORDER_URL} className="button button-light" data-testid="link-order-pickup-bottom">Order pickup <ArrowRight size={19} aria-hidden="true" /></Link></div></section>;
+  return <section className="order-band" aria-labelledby="order-heading"><div className="wrap order-inner"><div><span className="eyebrow">Closed Mondays</span><h2 id="order-heading">Your food.<br />Your order.</h2><p>Build your order here, then finish it on Chowbus, or call (313) 825-7757.</p></div><div className="order-actions"><a href={CHOWBUS_URL} target="_blank" rel="noopener noreferrer" className="button button-light" data-testid="link-order-chowbus-bottom">Order on Chowbus <ArrowUpRight size={19} aria-hidden="true" /></a><Link href={ORDER_URL} className="text-link" data-testid="link-order-pickup-bottom">Build an order first</Link></div></div></section>;
+}
+
+function HoursBox() {
+  const { today } = useStatus();
+  const rows: [string, string, number][] = [['Mon', 'Closed', 1], ['Tue', '11:30 am to 9:00 pm', 2], ['Wed', '11:30 am to 9:00 pm', 3], ['Thu', '11:30 am to 9:00 pm', 4], ['Fri', '11:30 am to 9:00 pm', 5], ['Sat', '11:30 am to 9:00 pm', 6], ['Sun', '11:30 am to 9:00 pm', 0]];
+  return <div className="hours-box"><div className="hours-head"><span className="eyebrow">Hours</span><span className="brush" aria-hidden="true">食</span></div>{rows.map(([day, hours, dow]) => <div className={`hours-row ${dow === today ? 'today' : ''}`} key={day} aria-current={dow === today ? 'date' : undefined}><span>{day}{dow === today && <em>Today</em>}</span><span>{hours}</span></div>)}</div>;
+}
+
+function Faq() {
+  return <section className="faq wrap" aria-labelledby="faq-heading"><div className="faq-head"><span className="eyebrow">Before you come</span><h2 id="faq-heading">Good to know.</h2></div><div className="faq-list">{faqs.map(([q, a]) => <details key={q}><summary>{q}</summary><p>{a}</p></details>)}</div></section>;
 }
 
 function Home() {
+  useReveal('home');
   return <>
     <PageMeta title="Miss Chang An 念长安 | Xi'an Noodles in Troy, MI" description="Miss Chang An is a family-owned Xi'an street food restaurant in Troy, Michigan. Hand-pulled noodles, cumin lamb roujiamo, liangpi, soup dumplings and boba. 5071 Rochester Rd. Order pickup online." />
     <section className="hero" aria-labelledby="hero-heading"><div className="wrap hero-inner">
-      <div className="hero-copy"><div className="hero-kicker eyebrow">Hand Pulled Noodles</div><h1 id="hero-heading"><span>Miss</span><span>Chang An</span></h1><p className="hero-description">Xi'an street food on Rochester Road, Troy, Michigan. Chili oil noodles, cumin lamb roujiamo, liangpi, lamb bread soup, soup dumplings and boba. Small and family-owned, open Tuesday to Sunday.</p><div className="hero-actions"><Link href={ORDER_URL} className="button button-light" data-testid="link-hero-order">Order pickup <ArrowRight size={17} aria-hidden="true" /></Link><Link href="/menu" className="button button-outline" data-testid="link-hero-menu">Full menu <ArrowRight size={17} aria-hidden="true" /></Link><a href="#visit" className="button button-outline" data-testid="link-hero-hours">Hours <ArrowDownRight size={17} aria-hidden="true" /></a></div></div>
-      <div className="hero-art" aria-hidden="true"><span className="hero-character brush">念</span><span className="hero-art-note">念 长 安 · Xi'an to Troy</span></div><span className="hero-index">01 / 04</span>
+      <div className="hero-copy"><div className="hero-kicker"><OpenBadge tone="dark" /></div><h1 id="hero-heading"><span>Miss</span><span>Chang An</span></h1><p className="hero-description">Xi'an street food on Rochester Road, Troy, Michigan. Chili oil noodles, cumin lamb roujiamo, liangpi, lamb bread soup, soup dumplings and boba. Small and family-owned, open Tuesday to Sunday.</p><div className="hero-actions"><Link href={ORDER_URL} className="button button-light" data-testid="link-hero-order">Order pickup <ArrowRight size={17} aria-hidden="true" /></Link><Link href="/menu" className="text-link" data-testid="link-hero-menu">See the menu</Link><a href="#visit" className="text-link" data-testid="link-hero-hours">Hours and map</a></div></div>
+      <div className="hero-art" aria-hidden="true"><span className="hero-character brush">念</span><span className="hero-art-note">念 长 安 · Xi'an to Troy</span></div>
     </div></section>
     <div className="ticker" aria-hidden="true"><div className="ticker-track">{Array.from({ length: 8 }, (_, i) => <span key={i}>Hand-made noodles　·　Xi'an street food　·　Troy, Michigan　·　</span>)}</div></div>
-    <section className="story wrap" aria-labelledby="story-heading"><div className="story-label"><span className="eyebrow">The name / 01</span><span className="brush" aria-hidden="true">念</span></div><div><h2 id="story-heading">Missing<br /><em>Chang'an.</em></h2><p>Chang'an is the old name for Xi'an, the city at the start of the Silk Road. 念 means to miss someone, to keep a place in mind. So the menu is the food Xi'an eats on the street, made here by hand.</p><p className="aside">We used to be Nook Tea &amp; Cafe. We still make the boba.</p></div></section>
-    <section className="featured" aria-labelledby="featured-heading"><div className="wrap"><div className="section-heading"><div><span className="eyebrow">At the counter / 02</span><h2 id="featured-heading">Four to<br />start with.</h2></div><p>Prices from our ordering page</p></div><div className="featured-grid">{featured.map((item, index) => <article className="featured-item" key={item.name}><div className="featured-top"><span className="featured-number">0{index + 1} / 04</span><span className="featured-cn brush" aria-hidden="true">{item.chinese}</span></div><img className={`featured-image featured-image-${index + 1}`} src={`${import.meta.env.BASE_URL}images/${item.image}`} alt={item.name} loading="lazy" decoding="async" /><div><h3>{item.name}</h3><p>{item.description}</p><div className="featured-bottom"><span>{item.price}</span><ArrowUpRight size={24} aria-hidden="true" /></div></div></article>)}</div><Link href="/menu" className="featured-link" data-testid="link-featured-menu">Explore the full menu <ArrowUpRight size={17} aria-hidden="true" /></Link></div></section>
-    <section className="visit" id="visit" aria-labelledby="visit-heading"><div className="wrap visit-grid"><div><span className="eyebrow">Find us / 03</span><h2 id="visit-heading">Come<br /><span>hungry.</span></h2><p className="visit-address">{ADDRESS}</p><div className="visit-links"><a href={PHONE} data-testid="link-visit-phone">(313) 825-7757 <ArrowUpRight size={16} aria-hidden="true" /></a><a href={MAP_URL} target="_blank" rel="noopener noreferrer" data-testid="link-visit-directions">Directions <ArrowUpRight size={16} aria-hidden="true" /></a></div><p className="visit-note"><strong>Dine in, pickup, delivery</strong><br />Order at the counter or on the screen by the door. Soup dumplings are made when you order.</p></div><div className="hours-box"><div className="hours-head"><span className="eyebrow">Hours</span><span className="brush" aria-hidden="true">食</span></div>{[['Mon','Closed'],['Tue','11:30 am to 9:00 pm'],['Wed','11:30 am to 9:00 pm'],['Thu','11:30 am to 9:00 pm'],['Fri','11:30 am to 9:00 pm'],['Sat','11:30 am to 9:00 pm'],['Sun','11:30 am to 9:00 pm']].map(([day, hours]) => <div className="hours-row" key={day}><span>{day}</span><span>{hours}</span></div>)}</div></div></section>
+    <section className="story wrap reveal" aria-labelledby="story-heading"><div className="story-label"><span className="eyebrow">The name</span><span className="brush" aria-hidden="true">念</span></div><div><h2 id="story-heading">Missing<br /><em>Chang'an.</em></h2><p>Chang'an is the old name for Xi'an, the city at the start of the Silk Road. 念 means to miss someone, to keep a place in mind. So the menu is the food Xi'an eats on the street, made here by hand.</p><p className="aside">We used to be Nook Tea &amp; Cafe. We still make the boba.</p></div></section>
+    <section className="featured" aria-labelledby="featured-heading"><div className="wrap"><div className="section-heading"><div><span className="eyebrow">At the counter</span><h2 id="featured-heading">Four to<br />start with.</h2></div><p>Prices from our ordering page</p></div><div className="featured-grid">{featured.map((item, index) => <article className="featured-item reveal" style={{ transitionDelay: `${(index % 2) * 90}ms` }} key={item.name}><div className="featured-top"><span className="featured-cn brush" aria-hidden="true">{item.chinese}</span></div><img className={`featured-image featured-image-${index + 1}`} src={`${import.meta.env.BASE_URL}images/${item.image}`} alt={item.name} loading="lazy" decoding="async" /><div><h3>{item.name}</h3><p>{item.description}</p><div className="featured-bottom"><span>{item.price}</span><ArrowUpRight size={24} aria-hidden="true" /></div></div></article>)}</div><Link href="/menu" className="featured-link" data-testid="link-featured-menu">Explore the full menu <ArrowUpRight size={17} aria-hidden="true" /></Link></div></section>
+    <section className="how wrap" aria-labelledby="how-heading"><div className="how-head reveal"><span className="eyebrow">How to order</span><h2 id="how-heading">Three ways<br />in.</h2></div><div className="how-list">
+      <div className="how-row reveal"><h3>Pickup</h3><p>Order ahead and walk in. Dumplings and noodles are cooked when you order, so give the kitchen a little time.</p><a href={CHOWBUS_URL} target="_blank" rel="noopener noreferrer" className="text-link dark" data-testid="link-how-pickup">Order on Chowbus <ArrowUpRight size={15} aria-hidden="true" /></a></div>
+      <div className="how-row reveal"><h3>Dine in</h3><p>Order at the counter or on the screen by the door. We are open until 9:00 pm, Tuesday to Sunday.</p><a href="#visit" className="text-link dark" data-testid="link-how-dine">Hours and map</a></div>
+      <div className="how-row reveal"><h3>Delivery</h3><p>Ask when you call, or check our online ordering page for what is available to your address.</p><a href={PHONE} className="text-link dark" data-testid="link-how-delivery">Call (313) 825-7757</a></div>
+    </div></section>
+    <section className="visit" id="visit" aria-labelledby="visit-heading"><div className="wrap visit-grid"><div><span className="eyebrow">Find us</span><h2 id="visit-heading">Come<br /><span>hungry.</span></h2><OpenBadge tone="dark" /><p className="visit-address">{ADDRESS}</p><div className="visit-links"><a href={PHONE} data-testid="link-visit-phone">(313) 825-7757 <ArrowUpRight size={16} aria-hidden="true" /></a><a href={MAP_URL} target="_blank" rel="noopener noreferrer" data-testid="link-visit-directions">Directions <ArrowUpRight size={16} aria-hidden="true" /></a></div><p className="visit-note"><strong>Dine in, pickup, delivery</strong><br />Order at the counter or on the screen by the door. Soup dumplings are made when you order.</p></div><HoursBox /></div></section>
+    <Faq />
     <OrderBand />
   </>;
 }
 
 function MenuPage() {
+  const [query, setQuery] = useState('');
+  const [spicy, setSpicy] = useState(false);
+  const [active, setActive] = useState(categories[0].id);
+  const q = query.trim().toLowerCase();
+  const shown = useMemo(() => categories.map(category => ({
+    ...category,
+    items: category.items.filter(item => (!spicy || item.spice) && (!q || `${item.name} ${item.chinese ?? ''} ${item.description ?? ''}`.toLowerCase().includes(q))),
+  })).filter(category => category.items.length > 0), [q, spicy]);
+  const total = shown.reduce((sum, category) => sum + category.items.length, 0);
+  useReveal(`menu-${q}-${spicy}`);
+  useEffect(() => {
+    if (!('IntersectionObserver' in window)) return;
+    const io = new IntersectionObserver(entries => {
+      const hit = entries.filter(entry => entry.isIntersecting).sort((x, y) => x.boundingClientRect.top - y.boundingClientRect.top)[0];
+      if (hit) setActive(hit.target.id);
+    }, { rootMargin: '-15% 0px -70% 0px' });
+    document.querySelectorAll('.menu-section').forEach(el => io.observe(el));
+    return () => io.disconnect();
+  }, [shown]);
   return <>
     <PageMeta title="Miss Chang An Menu" description="Full menu for Miss Chang An, Troy MI: Xi'an specials, hand-made noodle soups, roujiamo, liangpi, soup dumplings, dim sum and boba tea, with prices." />
-    <section className="page-intro" aria-labelledby="menu-heading"><div className="wrap page-intro-inner"><span className="eyebrow">Miss Chang An / Troy, MI</span><h1 id="menu-heading">Menu<span className="sr-only"> 菜单</span></h1><span className="intro-cn brush" aria-hidden="true">菜单</span><p>Xi'an street food, hand-made noodles, dim sum and boba at 5071 Rochester Rd, Troy. Prices as listed on our ordering page on 30 September 2026. "From" means the dish has choices, like bun type or size, that change the price.</p></div></section>
-    <div className="wrap menu-layout"><aside className="menu-sidebar" aria-label="Menu categories"><span className="eyebrow">Jump to</span><div>{categories.map(category => <a key={category.id} href={`#${category.id}`} data-testid={`link-category-${category.id}`}>{category.title}</a>)}</div></aside><div>
-      {categories.map(category => <section className="menu-section" id={category.id} key={category.id} aria-labelledby={`heading-${category.id}`}><div className="menu-section-heading"><span className="brush" aria-hidden="true">{category.character}</span><h2 id={`heading-${category.id}`}>{category.title}</h2></div>{category.items.map((item, index) => <article className="menu-item" key={`${category.id}-${index}`} data-testid={`menu-item-${category.id}-${index}`}><div><h3 className="menu-item-name">{item.name}{item.chinese && <span className="brush" lang="zh">{item.chinese}</span>}{item.spice && <span className="spice">{item.spice}</span>}</h3>{item.description && <p>{item.description}</p>}</div><span className="menu-price" data-testid={`text-price-${category.id}-${index}`}>{item.price}</span></article>)}</section>)}
+    <section className="page-intro" aria-labelledby="menu-heading"><div className="wrap page-intro-inner"><span className="eyebrow">Miss Chang An, Troy MI</span><h1 id="menu-heading">Menu<span className="sr-only"> 菜单</span></h1><span className="intro-cn brush" aria-hidden="true">菜单</span><p>Xi'an street food, hand-made noodles, dim sum and boba at 5071 Rochester Rd, Troy. Prices as listed on our ordering page on 30 September 2026. "From" means the dish has choices, like bun type or size, that change the price.</p></div></section>
+    <div className="wrap menu-tools"><label className="menu-search"><Search size={18} aria-hidden="true" /><span className="sr-only">Search the menu</span><input type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Search noodles, lamb, dumplings" data-testid="input-menu-search" /></label><button type="button" className={`chip ${spicy ? 'on' : ''}`} aria-pressed={spicy} onClick={() => setSpicy(value => !value)} data-testid="button-filter-spicy">Spicy only</button><span className="menu-count" aria-live="polite">{total} {total === 1 ? 'dish' : 'dishes'}</span></div>
+    <div className="wrap menu-layout"><aside className="menu-sidebar" aria-label="Menu categories"><span className="eyebrow">Jump to</span><div>{categories.map(category => <a key={category.id} href={`#${category.id}`} className={active === category.id ? 'active' : ''} aria-current={active === category.id ? 'true' : undefined} data-testid={`link-category-${category.id}`}>{category.title}</a>)}</div></aside><div>
+      {total === 0 && <div className="menu-empty"><p>Nothing matches "{query}".</p><button type="button" className="text-link dark" onClick={() => { setQuery(''); setSpicy(false); }}>Clear filters</button></div>}
+      {shown.map(category => <section className="menu-section" id={category.id} key={category.id} aria-labelledby={`heading-${category.id}`}><div className="menu-section-heading"><span className="brush" aria-hidden="true">{category.character}</span><h2 id={`heading-${category.id}`}>{category.title}</h2></div>{category.items.map((item, index) => <article className="menu-item reveal" key={`${category.id}-${item.name}`} data-testid={`menu-item-${category.id}-${index}`}><div className="menu-item-body"><h3 className="menu-item-name">{item.name}{item.chinese && <span className="brush" lang="zh">{item.chinese}</span>}{item.spice && <span className="spice">{item.spice}</span>}</h3>{item.description && <p>{item.description}</p>}{thumbs[item.name] && <img className="menu-thumb" src={`${import.meta.env.BASE_URL}images/${thumbs[item.name]}`} alt={item.name} loading="lazy" decoding="async" />}</div><span className="menu-price" data-testid={`text-price-${category.id}-${index}`}>{item.price}</span></article>)}</section>)}
       <div className="menu-notice"><strong>Key</strong> SP: spicy. SP2 to SP5: spice level out of 5. Tell us about allergies when you order. The kitchen uses wheat, soy, sesame, peanuts, egg and shellfish.</div>
-      <div style={{ marginTop: 35 }}><Link href={ORDER_URL} className="button button-red" data-testid="link-menu-order">Order pickup <ArrowRight size={18} aria-hidden="true" /></Link></div>
+      <div className="menu-cta"><Link href={ORDER_URL} className="button button-red" data-testid="link-menu-order">Build a pickup order <ArrowRight size={18} aria-hidden="true" /></Link><a href={CHOWBUS_URL} target="_blank" rel="noopener noreferrer" className="text-link dark" data-testid="link-menu-chowbus">Order on Chowbus <ArrowUpRight size={15} aria-hidden="true" /></a></div>
     </div></div>
   </>;
 }

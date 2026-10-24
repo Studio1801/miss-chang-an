@@ -132,3 +132,4 @@
 .ord-qty button:disabled:hover { background: transparent; color: var(--char); }
 .ord-qty.small > button:disabled { border-color: #bcb0a1; }
 @media (hover: hover) and (pointer: fine) { .ord-qty button:hover:not(:disabled) { background: var(--red); color: var(--flour); } }
+.ord-linkbtn { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }

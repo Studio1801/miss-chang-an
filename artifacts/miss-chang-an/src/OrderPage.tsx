@@ -238,6 +238,7 @@ export default function OrderPage({ categories }: { categories: Category[] }) {
             {summary(placed.lines, placed.total, placed.lines.some(l => l.from) ? 'Starting total' : 'Total')}
             <div className="ord-actions">
               <button type="button" className="ord-primary" onClick={restart} data-testid="button-start-over">Start over</button>
+              <a href="https://pos.chowbus.com/online-ordering/store/Miss-Chang-An/24125" target="_blank" rel="noopener noreferrer" className="ord-primary ord-linkbtn" data-testid="link-order-chowbus">Place the real order on Chowbus</a>
               <Link href="/menu" className="ord-secondary ord-linkbtn" data-testid="link-order-menu">Back to menu</Link>
             </div>
           </div>
