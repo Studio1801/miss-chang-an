@@ -1,65 +1,23 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { ArrowRight, ArrowUpRight, Menu as MenuIcon, Search, X } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, Facebook, Instagram, Menu as MenuIcon, Search, X } from 'lucide-react';
 import { Link, Route, Switch, useLocation } from 'wouter';
 import type { Category } from './types/menu';
+import menuData from './data/menu.json';
 import OrderPage from './OrderPage';
 import { RouteAccessibility } from './components/route-accessibility';
 import { useStatus } from './lib/hours';
 import { useReveal } from './lib/reveal';
+import { useLiveMenu } from './lib/menuState';
 
 const ORDER_URL = '/order';
 const MAP_URL = 'https://www.google.com/maps/search/?api=1&query=Miss+Chang+An+5071+Rochester+Rd+Troy+MI+48085';
 const CHOWBUS_URL = 'https://pos.chowbus.com/online-ordering/store/Miss-Chang-An/24125';
+const INSTAGRAM_URL = 'https://instagram.com/misschangan.troy';
+const FACEBOOK_URL = 'https://facebook.com/profile.php?id=61565498745253';
 const PHONE = 'tel:+13138257757';
 const ADDRESS = '5071 Rochester Rd, Troy, MI 48085';
 
-const categories: Category[] = [
-  { id: 'xian-specials', character: '西', title: "Xi'an specials", items: [
-    { name: 'Chili oil-splashed noodles', chinese: '油泼面', spice: 'SP', price: 'From $10.99', description: 'Wide hand-made noodles, chili, garlic, hot oil.' },
-    { name: 'Liangpi cold noodles', chinese: '西安面皮', spice: 'SP', price: 'From $9.89', description: 'Cold skin noodles in chili oil.' },
-    { name: 'Cumin lamb roujiamo', chinese: '孜然羊肉肉夹馍', price: 'From $9.99', description: 'Wok-fried lamb with cumin in your choice of bun.' },
-    { name: 'Braised pork roujiamo', chinese: '猪肉肉夹馍', price: 'From $7.99', description: 'Slow-braised pork in your choice of bun.' },
-    { name: 'Spicy chicken roujiamo', chinese: '香辣鸡肉肉夹馍', spice: 'SP', price: 'From $8.99', description: 'Spiced chicken in your choice of bun.' },
-    { name: "Xi'an lamb bread soup", chinese: '羊肉泡馍', price: 'From $14.99', description: 'Lamb broth, lamb, torn flatbread, sweet potato noodle, tofu skin, wood ear, lily flower.' },
-  ] },
-  { id: 'noodles', character: '面', title: 'Hand-made noodles', items: [
-    { name: 'Beef noodle soup', chinese: '兰州牛肉面', price: 'From $13.99', description: 'Clear beef broth, beef shank, white radish, cilantro, scallion.' },
-    { name: 'Braised beef noodle soup', chinese: '红烧牛肉面', spice: 'SP3', price: 'From $13.99', description: 'Rich braised beef broth, braised beef, scallion.' },
-    { name: 'Spicy and sour beef noodle soup', chinese: '酸汤牛肉面', spice: 'SP5', price: 'From $13.99', description: 'Spicy, sour beef broth, beef shank, Chinese pickles, cilantro.' },
-    { name: 'Chongqing noodle soup', chinese: '重庆小面', spice: 'SP2', price: 'From $13.99', description: 'Spicy beef broth, fried ground pork, soybeans, garlic, peanuts, preserved pickle, sesame.' },
-    { name: 'Lamb noodle soup', chinese: '滋补羊肉烩面', price: 'From $13.99', description: 'Rich lamb broth, lamb, sweet potato noodle, tofu skin, wood ear, lily flower.' },
-    { name: 'Braised chicken belt noodles', chinese: '大盘鸡裤带面', spice: 'SP3', price: 'From $13.99', description: 'Wide belt noodles, braised chicken legs, greens.' },
-    { name: 'Beijing zhajiang noodles', chinese: '老北京炸酱面', price: 'From $12.99', description: 'Brown pork sauce, sesame, fried egg, carrot, cucumber.' },
-    { name: 'Tomato and egg knife-shaved noodles', chinese: '西红柿鸡蛋刀削面', price: 'From $12.99', description: 'Tomato and egg broth, preserved pickle, cucumber, scallion.' },
-    { name: 'Dan dan noodles', chinese: '担担面', spice: 'SP', price: 'From $12.99', description: 'Sweet and spicy sesame chili sauce, crushed peanuts optional.' },
-    { name: 'Garlic noodles', chinese: '蒜香素拌面', price: '$11.99', description: 'Tossed with garlic. No meat.' },
-  ] },
-  { id: 'small-plates', character: '菜', title: 'Small plates', items: [
-    { name: 'Garlic cucumber salad', chinese: '拍黄瓜', price: 'From $5.49', description: 'Smashed cucumber, garlic, soy, vinegar. Chili oil optional.' },
-    { name: 'Black wood ear', chinese: '爽口木耳', price: '$5.99', description: 'Wood ear, cilantro, onion, spiced dressing.' },
-    { name: 'Spicy wonton soup', chinese: '红油抄手', spice: 'SP', price: '$8.99', description: 'Large pork wontons, preserved pickle, scallion, cilantro.' },
-    { name: 'Red chili wontons, 8', chinese: '红油抄手', spice: 'SP', price: 'From $9.99', description: 'Pork wontons in red chili oil.' },
-    { name: 'Chicken egg rolls, 2', chinese: '鸡肉蛋卷', price: '$4.49', description: 'Chicken and vegetables.' },
-  ] },
-  { id: 'dim-sum', character: '点', title: 'Dim sum and snacks', items: [
-    { name: 'Soup dumplings, 6', chinese: '手工灌汤小笼包', price: '$10.99', description: 'Hand-made pork soup dumplings. Made fresh, 10 to 15 minutes.' },
-    { name: 'Crystal shrimp dumplings, 6', chinese: '水晶虾饺', price: '$7.99', description: 'Made fresh, 10 to 15 minutes.' },
-    { name: 'Beef dumplings', chinese: '牛肉蒸饺', price: '$9.99', description: 'Ground beef, carrot, onion.' },
-    { name: 'Jianbing', chinese: '煎饼果子', price: 'From $6.99', description: 'Chinese crepe, crispy cracker, preserved pickle, scallion, sweet sauce.' },
-    { name: 'Scallion pancake', chinese: '葱油饼', price: '$6.49', description: 'Crisp, layered, green onion.' },
-    { name: 'Shrimp spring rolls, 3', chinese: '虾春卷', price: '$4.99' },
-    { name: 'Vegetable spring rolls, 3', chinese: '素春卷', price: '$3.99' },
-    { name: 'Tea egg', chinese: '茶叶蛋', price: '$2.99', description: 'Simmered in tea and spice.' },
-    { name: 'House chili oil', chinese: '辣椒油', spice: 'SP', price: '$6.99', description: 'Our own, made in the kitchen.' },
-  ] },
-  { id: 'drinks', character: '饮', title: 'Tea, boba and drinks', items: [
-    { name: 'Hong Kong milk tea', chinese: '港式奶茶', price: 'From $4.99' },
-    { name: 'Taro ube latte', chinese: '芋头奶茶', price: 'From $4.99' },
-    { name: 'Wintermelon green tea', chinese: '冬瓜绿茶', price: 'From $4.99' },
-    { name: 'Mango smoothie', price: 'From $5.99' },
-    { name: 'Pink peach sparkling refresher', price: 'From $5.99' },
-  ] },
-];
+const categories: Category[] = menuData.categories as Category[];
 
 const featured = [
   { name: 'Chili oil noodles', chinese: '油泼面', image: 'chili-oil-noodles.webp', description: 'Wide hand-made noodles, chili flakes and garlic, with hot oil poured over at the pass. The most ordered dish in the house.', price: 'From $10.99' },
@@ -136,6 +94,13 @@ function Header() {
   const [location] = useLocation();
   const headerRef = useRef<HTMLElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
   useEffect(() => setOpen(false), [location]);
   useEffect(() => {
     if (!open) return;
@@ -160,17 +125,19 @@ function Header() {
       window.removeEventListener('resize', closeOnResize);
     };
   }, [open]);
-  return <header className="site-header" ref={headerRef}>
+  return <header className={`site-header ${scrolled ? 'scrolled' : ''}`} ref={headerRef}>
     <div className="wrap header-inner">
-      <Link href="/" className="brand" data-testid="link-home-brand" aria-label="Miss Chang An home"><span className="brand-mark brush" aria-hidden="true">念</span><span>Miss Chang An</span><span className="brand-sub brush" aria-hidden="true">念长安</span></Link>
+      <Link href="/" className="brand" data-testid="link-home-brand" aria-label="Miss Chang An home"><span className="brand-cn zh" aria-hidden="true">念长安</span><span className="brand-en">Miss Chang An</span><span className="brand-tag">Xi'an street kitchen</span></Link>
       <button ref={toggleRef} className="mobile-toggle" type="button" aria-label={open ? 'Close navigation' : 'Open navigation'} aria-expanded={open} aria-controls="site-navigation" onClick={() => setOpen(value => !value)} data-testid="button-mobile-menu">{open ? <X size={22} /> : <MenuIcon size={22} />}</button>
       <nav id="site-navigation" className={`header-nav ${open ? 'open' : ''}`} aria-label="Main navigation">
-        <Link href="/menu" className={`nav-link ${location === '/menu' ? 'active' : ''}`} aria-current={location === '/menu' ? 'page' : undefined} data-testid="link-header-menu">Menu</Link>
-        <Link href="/#visit" className="nav-link" data-testid="link-header-visit" onClick={() => {
-          setOpen(false);
-          if (location === '/') document.getElementById('visit')?.scrollIntoView();
-        }}>Visit</Link>
-        <Link className="nav-order" href={ORDER_URL} aria-current={location === ORDER_URL ? 'page' : undefined} data-testid="link-header-order">Order <ArrowRight size={16} aria-hidden="true" /></Link>
+        <div className="header-links">
+          <Link href="/" className={`nav-link ${location === '/' ? 'active' : ''}`} aria-current={location === '/' ? 'page' : undefined} data-testid="link-header-home">Home</Link>
+          <Link href="/#about" className="nav-link" data-testid="link-header-about" onClick={() => { setOpen(false); if (location === '/') document.getElementById('about')?.scrollIntoView(); }}>About Us</Link>
+          <Link href="/menu" className={`nav-link ${location === '/menu' ? 'active' : ''}`} aria-current={location === '/menu' ? 'page' : undefined} data-testid="link-header-menu">Our Dishes</Link>
+          <Link className={`nav-link ${location === ORDER_URL ? 'active' : ''}`} href={ORDER_URL} aria-current={location === ORDER_URL ? 'page' : undefined} data-testid="link-header-order">Online Ordering</Link>
+          <Link href="/#visit" className="nav-link" data-testid="link-header-visit" onClick={() => { setOpen(false); if (location === '/') document.getElementById('visit')?.scrollIntoView(); }}>Contact</Link>
+        </div>
+        <div className="header-social"><a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" aria-label="Miss Chang An on Instagram" data-testid="link-header-instagram"><Instagram size={22} aria-hidden="true" /></a><a href={FACEBOOK_URL} target="_blank" rel="noopener noreferrer" aria-label="Miss Chang An on Facebook" data-testid="link-header-facebook"><Facebook size={22} aria-hidden="true" /></a></div>
       </nav>
     </div>
   </header>;
@@ -180,8 +147,8 @@ function Footer() {
   return <footer className="site-footer">
     <div className="wrap">
       <div className="footer-main">
-        <div><p className="footer-name">Miss Chang An</p><div className="footer-info">{ADDRESS}<br /><a href={PHONE} data-testid="link-footer-phone">(313) 825-7757</a><br />Formerly Nook Tea &amp; Cafe</div></div>
-        <span className="footer-symbol brush" aria-hidden="true">念</span>
+        <div><p className="footer-name">Miss Chang An</p><div className="footer-info">{ADDRESS}<br /><a href={PHONE} data-testid="link-footer-phone">(313) 825-7757</a><br />Formerly Nook Tea &amp; Cafe</div><div className="footer-social"><a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" aria-label="Instagram" data-testid="link-footer-instagram"><Instagram size={22} aria-hidden="true" /></a><a href={FACEBOOK_URL} target="_blank" rel="noopener noreferrer" aria-label="Facebook" data-testid="link-footer-facebook"><Facebook size={22} aria-hidden="true" /></a></div></div>
+        <span className="footer-symbol zh" aria-hidden="true">念长安</span>
       </div>
       <div className="footer-bottom"><span>Xi'an street food in Troy, Michigan</span><nav aria-label="Footer navigation"><Link href="/menu" data-testid="link-footer-menu">Menu</Link><Link href="/terms" data-testid="link-footer-terms">Terms</Link><Link href="/privacy" data-testid="link-footer-privacy">Privacy</Link></nav></div>
       <p className="footer-credit" data-testid="text-studio-credit">Built by Studio 1801</p>
@@ -205,15 +172,22 @@ function Faq() {
 
 function Home() {
   useReveal('home');
+  const img = (name: string) => `${import.meta.env.BASE_URL}images/${name}`;
   return <>
     <PageMeta title="Miss Chang An 念长安 | Xi'an Noodles in Troy, MI" description="Miss Chang An is a family-owned Xi'an street food restaurant in Troy, Michigan. Hand-pulled noodles, cumin lamb roujiamo, liangpi, soup dumplings and boba. 5071 Rochester Rd. Order pickup online." />
-    <section className="hero" aria-labelledby="hero-heading"><div className="wrap hero-inner">
-      <div className="hero-copy"><div className="hero-kicker"><OpenBadge tone="dark" /></div><h1 id="hero-heading"><span>Miss</span><span>Chang An</span></h1><p className="hero-description">Xi'an street food on Rochester Road, Troy, Michigan. Chili oil noodles, cumin lamb roujiamo, liangpi, lamb bread soup, soup dumplings and boba. Small and family-owned, open Tuesday to Sunday.</p><div className="hero-actions"><Link href={ORDER_URL} className="button button-light" data-testid="link-hero-order">Order pickup <ArrowRight size={17} aria-hidden="true" /></Link><Link href="/menu" className="text-link" data-testid="link-hero-menu">See the menu</Link><a href="#visit" className="text-link" data-testid="link-hero-hours">Hours and map</a></div></div>
-      <div className="hero-art" aria-hidden="true"><span className="hero-character brush">念</span><span className="hero-art-note">念 长 安 · Xi'an to Troy</span></div>
+    <section className="hero" aria-labelledby="hero-heading"><div className="wrap">
+      <div className="hero-copy">
+        <p className="hero-kicker">Authentic Xi'an street food</p>
+        <p className="hero-sub">Fresh hand-pulled noodles • Boba café</p>
+        <h1 id="hero-heading">Miss Chang An</h1>
+        <div className="hero-status"><OpenBadge tone="light" /></div>
+        <p className="hero-description">Chili oil noodles, cumin lamb roujiamo, liangpi, lamb bread soup, soup dumplings and boba, on Rochester Road in Troy. Small, family-owned, open Tuesday to Sunday.</p>
+        <div className="hero-actions"><Link href={ORDER_URL} className="button button-red" data-testid="link-hero-order">Order now <ArrowRight size={18} aria-hidden="true" /></Link><Link href="/menu" className="text-link dark" data-testid="link-hero-menu">See the menu</Link><a href="#visit" className="text-link dark" data-testid="link-hero-hours">Hours and map</a></div>
+      </div>
+      <div className="hero-photos"><img src={img('chili-oil-noodles.webp')} alt="Chili oil noodles in a white bowl with bok choy" decoding="async" /><img src={img('cumin-lamb-roujiamo.webp')} alt="Cumin lamb roujiamo in a crisp flatbread" decoding="async" /><img src={img('soup-dumplings.webp')} alt="Soup dumplings in a bamboo steamer" decoding="async" /></div>
     </div></section>
-    <div className="ticker" aria-hidden="true"><div className="ticker-track">{Array.from({ length: 8 }, (_, i) => <span key={i}>Hand-made noodles　·　Xi'an street food　·　Troy, Michigan　·　</span>)}</div></div>
-    <section className="story wrap reveal" aria-labelledby="story-heading"><div className="story-label"><span className="eyebrow">The name</span><span className="brush" aria-hidden="true">念</span></div><div><h2 id="story-heading">Missing<br /><em>Chang'an.</em></h2><p>Chang'an is the old name for Xi'an, the city at the start of the Silk Road. 念 means to miss someone, to keep a place in mind. So the menu is the food Xi'an eats on the street, made here by hand.</p><p className="aside">We used to be Nook Tea &amp; Cafe. We still make the boba.</p></div></section>
-    <section className="featured" aria-labelledby="featured-heading"><div className="wrap"><div className="section-heading"><div><span className="eyebrow">At the counter</span><h2 id="featured-heading">Four to<br />start with.</h2></div><p>Prices from our ordering page</p></div><div className="featured-grid">{featured.map((item, index) => <article className="featured-item reveal" style={{ transitionDelay: `${(index % 2) * 90}ms` }} key={item.name}><div className="featured-top"><span className="featured-cn brush" aria-hidden="true">{item.chinese}</span></div><img className={`featured-image featured-image-${index + 1}`} src={`${import.meta.env.BASE_URL}images/${item.image}`} alt={item.name} loading="lazy" decoding="async" /><div><h3>{item.name}</h3><p>{item.description}</p><div className="featured-bottom"><span>{item.price}</span><ArrowUpRight size={24} aria-hidden="true" /></div></div></article>)}</div><Link href="/menu" className="featured-link" data-testid="link-featured-menu">Explore the full menu <ArrowUpRight size={17} aria-hidden="true" /></Link></div></section>
+    <section className="about wrap reveal" id="about" aria-labelledby="about-heading"><div><span className="eyebrow">About us</span><h2 id="about-heading">Missing <em>Chang'an.</em></h2><p>Chang'an is the old name for Xi'an, the city at the start of the Silk Road. 念 means to miss someone, to keep a place in mind. So the menu is the food Xi'an eats on the street, made here by hand: pulled noodles, roujiamo, the Chinese burger, and cold liangpi in chili oil. Boba and smoothies go alongside.</p><p className="aside">We used to be Nook Tea &amp; Cafe. We still make the boba.</p><p className="keywords">Cold noodles · Chinese burger · Spicy flavor · Rich broth · Traditional taste</p></div><img className="about-photo" src={img('lamb-bread-soup.webp')} alt="Lamb bread soup with torn flatbread, wood ear and cilantro" loading="lazy" decoding="async" /></section>
+    <section className="dishes" id="dishes" aria-labelledby="featured-heading"><div className="wrap"><div className="section-heading reveal"><div><span className="eyebrow">Our dishes</span><h2 id="featured-heading">Start here.</h2></div><p>Prices from our ordering page</p></div><div className="featured-grid">{featured.map((item, index) => <article className="featured-item reveal" style={{ transitionDelay: `${(index % 2) * 90}ms` }} key={item.name}><div className="featured-media"><img className={`featured-image featured-image-${index + 1}`} src={img(item.image)} alt={item.name} loading="lazy" decoding="async" /></div><div className="featured-row"><h3>{item.name}<span className="featured-cn zh" lang="zh">{item.chinese}</span></h3><span className="featured-price">{item.price}</span></div><p>{item.description}</p></article>)}</div><Link href="/menu" className="text-link dark featured-link" data-testid="link-featured-menu">See the full menu <ArrowUpRight size={16} aria-hidden="true" /></Link></div></section>
     <section className="how wrap" aria-labelledby="how-heading"><div className="how-head reveal"><span className="eyebrow">How to order</span><h2 id="how-heading">Three ways<br />in.</h2></div><div className="how-list">
       <div className="how-row reveal"><h3>Pickup</h3><p>Order ahead and walk in. Dumplings and noodles are cooked when you order, so give the kitchen a little time.</p><a href={CHOWBUS_URL} target="_blank" rel="noopener noreferrer" className="text-link dark" data-testid="link-how-pickup">Order on Chowbus <ArrowUpRight size={15} aria-hidden="true" /></a></div>
       <div className="how-row reveal"><h3>Dine in</h3><p>Order at the counter or on the screen by the door. We are open until 9:00 pm, Tuesday to Sunday.</p><a href="#visit" className="text-link dark" data-testid="link-how-dine">Hours and map</a></div>
@@ -226,11 +200,12 @@ function Home() {
 }
 
 function MenuPage() {
+  const live = useLiveMenu(categories);
   const [query, setQuery] = useState('');
   const [spicy, setSpicy] = useState(false);
   const [active, setActive] = useState(categories[0].id);
   const q = query.trim().toLowerCase();
-  const shown = useMemo(() => categories.map(category => ({
+  const shown = useMemo(() => live.map(category => ({
     ...category,
     items: category.items.filter(item => (!spicy || item.spice) && (!q || `${item.name} ${item.chinese ?? ''} ${item.description ?? ''}`.toLowerCase().includes(q))),
   })).filter(category => category.items.length > 0), [q, spicy]);
@@ -251,7 +226,7 @@ function MenuPage() {
     <div className="wrap menu-tools"><label className="menu-search"><Search size={18} aria-hidden="true" /><span className="sr-only">Search the menu</span><input type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Search noodles, lamb, dumplings" data-testid="input-menu-search" /></label><button type="button" className={`chip ${spicy ? 'on' : ''}`} aria-pressed={spicy} onClick={() => setSpicy(value => !value)} data-testid="button-filter-spicy">Spicy only</button><span className="menu-count" aria-live="polite">{total} {total === 1 ? 'dish' : 'dishes'}</span></div>
     <div className="wrap menu-layout"><aside className="menu-sidebar" aria-label="Menu categories"><span className="eyebrow">Jump to</span><div>{categories.map(category => <a key={category.id} href={`#${category.id}`} className={active === category.id ? 'active' : ''} aria-current={active === category.id ? 'true' : undefined} data-testid={`link-category-${category.id}`}>{category.title}</a>)}</div></aside><div>
       {total === 0 && <div className="menu-empty"><p>Nothing matches "{query}".</p><button type="button" className="text-link dark" onClick={() => { setQuery(''); setSpicy(false); }}>Clear filters</button></div>}
-      {shown.map(category => <section className="menu-section" id={category.id} key={category.id} aria-labelledby={`heading-${category.id}`}><div className="menu-section-heading"><span className="brush" aria-hidden="true">{category.character}</span><h2 id={`heading-${category.id}`}>{category.title}</h2></div>{category.items.map((item, index) => <article className="menu-item reveal" key={`${category.id}-${item.name}`} data-testid={`menu-item-${category.id}-${index}`}><div className="menu-item-body"><h3 className="menu-item-name">{item.name}{item.chinese && <span className="brush" lang="zh">{item.chinese}</span>}{item.spice && <span className="spice">{item.spice}</span>}</h3>{item.description && <p>{item.description}</p>}{thumbs[item.name] && <img className="menu-thumb" src={`${import.meta.env.BASE_URL}images/${thumbs[item.name]}`} alt={item.name} loading="lazy" decoding="async" />}</div><span className="menu-price" data-testid={`text-price-${category.id}-${index}`}>{item.price}</span></article>)}</section>)}
+      {shown.map(category => <section className="menu-section" id={category.id} key={category.id} aria-labelledby={`heading-${category.id}`}><div className="menu-section-heading"><span className="brush" aria-hidden="true">{category.character}</span><h2 id={`heading-${category.id}`}>{category.title}</h2></div>{category.items.map((item, index) => <article className={`menu-item reveal ${item.soldOut ? 'sold' : ''}`} key={`${category.id}-${item.name}`} data-testid={`menu-item-${category.id}-${index}`}><div className="menu-item-body"><h3 className="menu-item-name">{item.name}{item.chinese && <span className="brush" lang="zh">{item.chinese}</span>}{item.spice && <span className="spice">{item.spice}</span>}{item.isNew && <span className="new-tag">New</span>}</h3>{item.description && <p>{item.description}</p>}{thumbs[item.name] && <img className="menu-thumb" src={`${import.meta.env.BASE_URL}images/${thumbs[item.name]}`} alt={item.name} loading="lazy" decoding="async" />}</div><span className="menu-price" data-testid={`text-price-${category.id}-${index}`}>{item.soldOut ? 'Sold out today' : item.price}</span></article>)}</section>)}
       <div className="menu-notice"><strong>Key</strong> SP: spicy. SP2 to SP5: spice level out of 5. Tell us about allergies when you order. The kitchen uses wheat, soy, sesame, peanuts, egg and shellfish.</div>
       <div className="menu-cta"><Link href={ORDER_URL} className="button button-red" data-testid="link-menu-order">Build a pickup order <ArrowRight size={18} aria-hidden="true" /></Link><a href={CHOWBUS_URL} target="_blank" rel="noopener noreferrer" className="text-link dark" data-testid="link-menu-chowbus">Order on Chowbus <ArrowUpRight size={15} aria-hidden="true" /></a></div>
     </div></div>
@@ -273,7 +248,8 @@ function NotFound() {
 }
 
 function App() {
-  return <><a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:bg-[#f7efe2] focus:p-4" data-testid="link-skip-content">Skip to content</a><Header /><main id="main-content" tabIndex={-1}><Switch><Route path="/" component={Home} /><Route path="/menu" component={MenuPage} /><Route path="/order"><PageMeta title="Order Pickup | Miss Chang An" description="Choose Miss Chang An dishes, review your basket and try our simple in-house pickup ordering flow." /><OrderPage categories={categories} /></Route><Route path="/privacy">{() => <LegalPage type="privacy" />}</Route><Route path="/terms">{() => <LegalPage type="terms" />}</Route><Route component={NotFound} /></Switch></main><Footer /><RouteAccessibility /></>;
+  const live = useLiveMenu(categories);
+  return <><a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:bg-[#f7efe2] focus:p-4" data-testid="link-skip-content">Skip to content</a><Header /><main id="main-content" tabIndex={-1}><Switch><Route path="/" component={Home} /><Route path="/menu" component={MenuPage} /><Route path="/order"><PageMeta title="Order Pickup | Miss Chang An" description="Choose Miss Chang An dishes, review your basket and try our simple in-house pickup ordering flow." /><OrderPage categories={live} /></Route><Route path="/privacy">{() => <LegalPage type="privacy" />}</Route><Route path="/terms">{() => <LegalPage type="terms" />}</Route><Route component={NotFound} /></Switch></main><Footer /><RouteAccessibility /></>;
 }
 
 export default App;

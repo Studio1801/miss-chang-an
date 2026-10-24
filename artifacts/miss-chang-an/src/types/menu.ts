@@ -1,4 +1,7 @@
 export type Dish = {
+  id?: string;
+  soldOut?: boolean;
+  isNew?: boolean;
   name: string;
   chinese?: string;
   price: string;

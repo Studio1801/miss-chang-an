@@ -4,29 +4,28 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Miss Chang An Back Office</title>
-<meta name="claude:viewport-fit-sides" content="cover">
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%23b3221a'/%3E%3Ctext x='32' y='46' font-size='40' text-anchor='middle' fill='%23f7efe2' font-family='serif'%3E%E5%BF%B5%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700;800;900&display=swap">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&text=%E5%BF%B5%E9%95%BF%E5%AE%89&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Noto+Serif+SC:wght@500;600&display=swap">
 <style>
 /* Same paper, ink and red as the Miss Chang An website. Three tabs, each one glance: numbers on top, then the list, calendar or charts. Single light theme by choice. */
 :root {
   color-scheme: light;
-  --bg: #f7efe2;
-  --ink: #1d1411;
-  --muted: #5e5048;
-  --faint: #9a8a7e;
-  --line: #d3c3b0;
-  --soft: #efe3d0;
-  --red: #b3221a;
-  --red-soft: #f0d3c3;
-  --font-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
-  --font-body: "Archivo", "Helvetica Neue", Arial, sans-serif;
-  --font-mono: "Archivo", "Helvetica Neue", Arial, sans-serif;
-  --font-brush: "Ma Shan Zheng", "STKaiti", "KaiTi", serif;
+  --bg: #fff3d9;
+  --ink: #2e1712;
+  --muted: #6a4d42;
+  --faint: #a08575;
+  --line: #dcc79c;
+  --soft: #f7e6c0;
+  --red: #ad3b27;
+  --red-soft: #f6d6c4;
+  --font-display: "Libre Baskerville", Georgia, serif;
+  --font-body: "Inter", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "Inter", "Helvetica Neue", Arial, sans-serif;
+  --font-brush: "Noto Serif SC", "Songti SC", serif;
   --font-zh: "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", sans-serif;
   --ease: cubic-bezier(.22, 1, .36, 1);
   --spring: cubic-bezier(.34, 1.45, .64, 1);
@@ -262,6 +261,11 @@ footer.site { border-top: 1px solid var(--line); padding-block: 18px 30px; color
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 
 /* House style from the website: cream paper, ink, one red. Square corners, thin rules, heavy tight type. */
+.marq { background: var(--ink); color: var(--bg); overflow: hidden; white-space: nowrap; font-weight: 800; font-size: 12px; letter-spacing: .16em; text-transform: uppercase; padding: 13px 0; }
+.marq-in { display: inline-flex; animation: marq 40s linear infinite; }
+.marq-in span { flex: none; }
+.marq-in span:nth-child(odd) { color: var(--bg); }
+@keyframes marq { to { transform: translateX(-50%); } }
 .top { border-bottom: 1px solid var(--ink); }
 .seal { background: var(--red); color: var(--bg); border-radius: 2px; }
 .brand-name { font-weight: 900; letter-spacing: -0.035em; font-size: 22px; }
@@ -509,6 +513,10 @@ html { scroll-behavior: smooth; }
 .sheet input, .sheet select { width: 100%; min-width: 0; }
 .sheet label { min-width: 0; }
 .so-list button { white-space: nowrap; flex: none; }
+/* Match the website: warm cream, rust red, serif headings */
+.k-value, .c-day .num, .d-date .num, .d-sales, .c-sum b, .zoom-head h2, .list-head h2, .sub-title, .brand-name { letter-spacing: 0 !important; font-weight: 700 !important; }
+.seal { font-weight: 600; }
+.sync-note { font-size: 13px; color: var(--muted); margin: 14px 0 0; line-height: 1.5; }
 </style>
 </head>
 <body>
@@ -602,7 +610,7 @@ html { scroll-behavior: smooth; }
   const T = {
     en: {
       tabOrders: "Orders", tabSales: "Sales", tabSite: "Website",
-      tabMenu: "Menu", menuTitle: "Your menu", menuOn: "dishes on your website", menuAvail: "available", menuOut: "sold out", menuSoldNow: "Sold out right now", menuAllOk: "Everything is available. Switch a dish off when you run out.", menuPutBack: "Put back", menuNoPhoto: n => `${n} dishes have no photo yet. Dishes with photos sell better.`, menuAdd: "Add a new dish", menuSee: "See your website", menuFind: "Find a dish", menuAll: "All", menuOnMenu: "On the menu", menuSold: "Sold out", menuPhoto: "Add photo", menuNone: "No dishes match.",
+      tabMenu: "Menu", menuSync: "Same dishes and prices as your website. Switch a dish off or add one and the website menu changes with it. (Demo: saved in this browser.)", menuTitle: "Your menu", menuOn: "dishes on your website", menuAvail: "available", menuOut: "sold out", menuSoldNow: "Sold out right now", menuAllOk: "Everything is available. Switch a dish off when you run out.", menuPutBack: "Put back", menuNoPhoto: n => `${n} dishes have no photo yet. Dishes with photos sell better.`, menuAdd: "Add a new dish", menuSee: "See your website", menuFind: "Find a dish", menuAll: "All", menuOnMenu: "On the menu", menuSold: "Sold out", menuPhoto: "Add photo", menuNone: "No dishes match.",
       mNew: "New dish", mName: "Dish name", mZh: "Chinese name (optional)", mPrice: "Price", mCat: "Category", mCancel: "Cancel", mSave: "Add dish", menuAdded: n => `Added <b>${n}</b> to your menu`, menuOffToast: n => `<b>${n}</b> is sold out on your website`, menuOnToast: n => `<b>${n}</b> is back on your website`,
       cats: { noodles: "Noodles", rjm: "Roujiamo", soup: "Soups", rice: "Rice bowls", dim: "Dim sum", sides: "Sides", drinks: "Drinks", catering: "Catering" },
       sample: "Sample data",
@@ -627,7 +635,8 @@ html { scroll-behavior: smooth; }
       live: "Live", soon: "Next step",
       checks: [
         ["Order buttons go to your Chowbus ordering", "Pickup or delivery, same as today. Nothing changes in the kitchen.", 1],
-        ["Full menu with Chinese names and prices", "Noodles, roujiamo, rice bowls, dim sum, boba and catering trays."],
+        ["Menu stays in step with this dashboard", "Switch a dish off here and the website shows it as sold out. Add a dish and it appears in the right section."],
+        ["Full menu with Chinese names and prices", "Specials, noodles, small plates, dim sum and boba, with spice marks and starting prices."],
         ["Hours, address and directions", "Tuesday to Sunday, 11:30 am to 9 pm. One tap to the map."],
         ["Your story", "What 念长安 means, and that you were Nook Tea & Cafe and still make the boba."],
         ["No leftover template text", "Every link and title is real, so nothing looks unfinished."]
@@ -640,7 +649,7 @@ html { scroll-behavior: smooth; }
     },
     zh: {
       tabOrders: "订单", tabSales: "营业额", tabSite: "网站",
-      tabMenu: "菜单", menuTitle: "您的菜单", menuOn: "道菜在网站上", menuAvail: "可点", menuOut: "已售完", menuSoldNow: "现在售完的菜", menuAllOk: "全部都能点。卖完了就把那道菜关掉。", menuPutBack: "恢复", menuNoPhoto: n => `还有 ${n} 道菜没有照片。有照片的菜卖得更好。`, menuAdd: "添加新菜", menuSee: "查看网站", menuFind: "搜索菜名", menuAll: "全部", menuOnMenu: "在菜单上", menuSold: "已售完", menuPhoto: "添加照片", menuNone: "没有找到。",
+      tabMenu: "菜单", menuSync: "菜品和价格与网站完全一致。关掉或新增一道菜，网站菜单会同步变化。（演示：保存在本浏览器。）", menuTitle: "您的菜单", menuOn: "道菜在网站上", menuAvail: "可点", menuOut: "已售完", menuSoldNow: "现在售完的菜", menuAllOk: "全部都能点。卖完了就把那道菜关掉。", menuPutBack: "恢复", menuNoPhoto: n => `还有 ${n} 道菜没有照片。有照片的菜卖得更好。`, menuAdd: "添加新菜", menuSee: "查看网站", menuFind: "搜索菜名", menuAll: "全部", menuOnMenu: "在菜单上", menuSold: "已售完", menuPhoto: "添加照片", menuNone: "没有找到。",
       mNew: "新菜品", mName: "英文菜名", mZh: "中文菜名（选填）", mPrice: "价格", mCat: "分类", mCancel: "取消", mSave: "添加", menuAdded: n => `已添加 <b>${n}</b>`, menuOffToast: n => `<b>${n}</b> 在网站上已售完`, menuOnToast: n => `<b>${n}</b> 已恢复`,
       cats: { noodles: "面食", rjm: "肉夹馍", soup: "汤", rice: "盖饭", dim: "点心", sides: "小菜", drinks: "饮品", catering: "聚会餐" },
       sample: "示例数据",
@@ -665,7 +674,8 @@ html { scroll-behavior: smooth; }
       live: "已上线", soon: "下一步",
       checks: [
         ["点餐按钮直接连到您的 Chowbus", "自取或外送，和现在一样，后厨不用改任何流程。", 1],
-        ["完整菜单，中英文菜名和价格", "面、肉夹馍、盖饭、点心、奶茶和聚会餐。"],
+        ["菜单与本后台同步", "在这里关掉一道菜，网站上就显示售完；新增一道菜，会出现在对应分类里。"],
+        ["完整菜单，中英文菜名和价格", "西安特色、手工面、小菜、点心和奶茶，标注辣度和起价。"],
         ["营业时间、地址和路线", "周二到周日，上午 11:30 到晚上 9 点，一键打开地图。"],
         ["您的故事", "念长安名字的意思，以及以前是 Nook Tea & Cafe、现在还在做奶茶。"],
         ["没有残留的模板文字", "每个链接和标题都是真的，看起来很完整。"]
@@ -680,27 +690,15 @@ html { scroll-behavior: smooth; }
   try { if (localStorage.getItem("mca-lang") === "zh") lang = "zh"; } catch (_) {}
   const t = () => T[lang];
 
-  // Menu as listed on their Chowbus ordering page
-  const MENU = [
-    ["chili", "Chili oil-splashed noodles", "油泼面", 10.99, 10], ["liangpi", "Liangpi cold noodles", "西安面皮", 9.89, 5],
-    ["lamb-rjm", "Cumin lamb roujiamo", "孜然羊肉肉夹馍", 9.99, 8], ["pork-rjm", "Braised pork roujiamo", "猪肉肉夹馍", 7.99, 4],
-    ["chick-bun", "Spicy chicken bun", "香辣鸡肉肉夹馍", 8.99, 3], ["beef-paomo", "Xi'an bread soup (beef)", "西安牛肉泡馍", 14.99, 4],
-    ["lamb-soup", "Lamb soup & flatbread", "西安水盆羊肉", 13.99, 2], ["gluten", "Xi'an gluten bites", "红油面筋", 12.99, 2],
-    ["glass", "Hot & sour glass noodles", "酸辣粉", 13.99, 3], ["beef", "Beef noodle soup", "兰州牛肉面", 13.99, 5],
-    ["dandan", "Dan dan noodles", "担担面", 12.99, 3], ["garlic-n", "Garlic noodles", "蒜香素拌面", 11.99, 2],
-    ["chick-rice", "Braised chicken rice bowl", "招牌红烧鸡肉饭", 13.99, 4], ["beef-rice", "Braised beef rice bowl", "招牌红烧牛肉饭", 13.99, 3],
-    ["cucumber", "Garlic cucumber salad", "拍黄瓜", 5.49, 3], ["shred-chick", "Spicy shredded chicken", "红油鸡丝", 7.99, 2],
-    ["wonton", "Red chili wontons", "红油抄手", 9.99, 3], ["xlb", "Hand-made soup dumplings", "手工灌汤小笼包", 10.99, 7],
-    ["beef-dump", "Beef dumplings", "牛肉蒸饺", 9.99, 2], ["egg-roll", "Chicken egg rolls (2)", "鸡肉蛋卷", 4.49, 2],
-    ["shrimp-roll", "Shrimp spring rolls (3)", "虾春卷", 4.99, 2], ["tea-egg", "Chinese tea egg", "茶叶蛋", 2.99, 2],
-    ["hk-tea", "Hong Kong milk tea", "港式奶茶", 4.99, 5, 1], ["taro", "Taro ube latte", "芋头奶茶", 4.99, 3, 1],
-    ["wintermelon", "Wintermelon green tea", "冬瓜绿茶", 4.99, 3, 1], ["mango", "Mango smoothie", "芒果冰沙", 5.99, 2, 1],
-    ["peach", "Pink peach sparkling refresher", "蜜桃气泡饮", 5.99, 2, 1],
-    ["tray-half", "Beef garlic noodle tray (half)", "牛肉丝蒜香素拌面（半盘）", 45, 0]
-  ].map(r => ({ id: r[0], en: r[1], zh: r[2], price: r[3], w: r[4], drink: !!r[5] }));
+  // The menu comes from the website's own data file (src/data/menu.json). Same dishes, same names, same prices.
+  const SITE = {"updated":"2026-09-30","categories":[{"id":"xian-specials","character":"西","title":"Xi'an specials","items":[{"name":"Chili oil-splashed noodles","chinese":"油泼面","spice":"SP","price":"From $10.99","description":"Wide hand-made noodles, chili, garlic, hot oil.","id":"chili-oil-splashed-noodles"},{"name":"Liangpi cold noodles","chinese":"西安面皮","spice":"SP","price":"From $9.89","description":"Cold skin noodles in chili oil.","id":"liangpi-cold-noodles"},{"name":"Cumin lamb roujiamo","chinese":"孜然羊肉肉夹馍","price":"From $9.99","description":"Wok-fried lamb with cumin in your choice of bun.","id":"cumin-lamb-roujiamo"},{"name":"Braised pork roujiamo","chinese":"猪肉肉夹馍","price":"From $7.99","description":"Slow-braised pork in your choice of bun.","id":"braised-pork-roujiamo"},{"name":"Spicy chicken roujiamo","chinese":"香辣鸡肉肉夹馍","spice":"SP","price":"From $8.99","description":"Spiced chicken in your choice of bun.","id":"spicy-chicken-roujiamo"},{"name":"Xi'an lamb bread soup","chinese":"羊肉泡馍","price":"From $14.99","description":"Lamb broth, lamb, torn flatbread, sweet potato noodle, tofu skin, wood ear, lily flower.","id":"xi-an-lamb-bread-soup"}]},{"id":"noodles","character":"面","title":"Hand-made noodles","items":[{"name":"Beef noodle soup","chinese":"兰州牛肉面","price":"From $13.99","description":"Clear beef broth, beef shank, white radish, cilantro, scallion.","id":"beef-noodle-soup"},{"name":"Braised beef noodle soup","chinese":"红烧牛肉面","spice":"SP3","price":"From $13.99","description":"Rich braised beef broth, braised beef, scallion.","id":"braised-beef-noodle-soup"},{"name":"Spicy and sour beef noodle soup","chinese":"酸汤牛肉面","spice":"SP5","price":"From $13.99","description":"Spicy, sour beef broth, beef shank, Chinese pickles, cilantro.","id":"spicy-and-sour-beef-noodle-soup"},{"name":"Chongqing noodle soup","chinese":"重庆小面","spice":"SP2","price":"From $13.99","description":"Spicy beef broth, fried ground pork, soybeans, garlic, peanuts, preserved pickle, sesame.","id":"chongqing-noodle-soup"},{"name":"Lamb noodle soup","chinese":"滋补羊肉烩面","price":"From $13.99","description":"Rich lamb broth, lamb, sweet potato noodle, tofu skin, wood ear, lily flower.","id":"lamb-noodle-soup"},{"name":"Braised chicken belt noodles","chinese":"大盘鸡裤带面","spice":"SP3","price":"From $13.99","description":"Wide belt noodles, braised chicken legs, greens.","id":"braised-chicken-belt-noodles"},{"name":"Beijing zhajiang noodles","chinese":"老北京炸酱面","price":"From $12.99","description":"Brown pork sauce, sesame, fried egg, carrot, cucumber.","id":"beijing-zhajiang-noodles"},{"name":"Tomato and egg knife-shaved noodles","chinese":"西红柿鸡蛋刀削面","price":"From $12.99","description":"Tomato and egg broth, preserved pickle, cucumber, scallion.","id":"tomato-and-egg-knife-shaved-noodles"},{"name":"Dan dan noodles","chinese":"担担面","spice":"SP","price":"From $12.99","description":"Sweet and spicy sesame chili sauce, crushed peanuts optional.","id":"dan-dan-noodles"},{"name":"Garlic noodles","chinese":"蒜香素拌面","price":"$11.99","description":"Tossed with garlic. No meat.","id":"garlic-noodles"}]},{"id":"small-plates","character":"菜","title":"Small plates","items":[{"name":"Garlic cucumber salad","chinese":"拍黄瓜","price":"From $5.49","description":"Smashed cucumber, garlic, soy, vinegar. Chili oil optional.","id":"garlic-cucumber-salad"},{"name":"Black wood ear","chinese":"爽口木耳","price":"$5.99","description":"Wood ear, cilantro, onion, spiced dressing.","id":"black-wood-ear"},{"name":"Spicy wonton soup","chinese":"红油抄手","spice":"SP","price":"$8.99","description":"Large pork wontons, preserved pickle, scallion, cilantro.","id":"spicy-wonton-soup"},{"name":"Red chili wontons, 8","chinese":"红油抄手","spice":"SP","price":"From $9.99","description":"Pork wontons in red chili oil.","id":"red-chili-wontons-8"},{"name":"Chicken egg rolls, 2","chinese":"鸡肉蛋卷","price":"$4.49","description":"Chicken and vegetables.","id":"chicken-egg-rolls-2"}]},{"id":"dim-sum","character":"点","title":"Dim sum and snacks","items":[{"name":"Soup dumplings, 6","chinese":"手工灌汤小笼包","price":"$10.99","description":"Hand-made pork soup dumplings. Made fresh, 10 to 15 minutes.","id":"soup-dumplings-6"},{"name":"Crystal shrimp dumplings, 6","chinese":"水晶虾饺","price":"$7.99","description":"Made fresh, 10 to 15 minutes.","id":"crystal-shrimp-dumplings-6"},{"name":"Beef dumplings","chinese":"牛肉蒸饺","price":"$9.99","description":"Ground beef, carrot, onion.","id":"beef-dumplings"},{"name":"Jianbing","chinese":"煎饼果子","price":"From $6.99","description":"Chinese crepe, crispy cracker, preserved pickle, scallion, sweet sauce.","id":"jianbing"},{"name":"Scallion pancake","chinese":"葱油饼","price":"$6.49","description":"Crisp, layered, green onion.","id":"scallion-pancake"},{"name":"Shrimp spring rolls, 3","chinese":"虾春卷","price":"$4.99","id":"shrimp-spring-rolls-3"},{"name":"Vegetable spring rolls, 3","chinese":"素春卷","price":"$3.99","id":"vegetable-spring-rolls-3"},{"name":"Tea egg","chinese":"茶叶蛋","price":"$2.99","description":"Simmered in tea and spice.","id":"tea-egg"},{"name":"House chili oil","chinese":"辣椒油","spice":"SP","price":"$6.99","description":"Our own, made in the kitchen.","id":"house-chili-oil"}]},{"id":"drinks","character":"饮","title":"Tea, boba and drinks","items":[{"name":"Hong Kong milk tea","chinese":"港式奶茶","price":"From $4.99","id":"hong-kong-milk-tea"},{"name":"Taro ube latte","chinese":"芋头奶茶","price":"From $4.99","id":"taro-ube-latte"},{"name":"Wintermelon green tea","chinese":"冬瓜绿茶","price":"From $4.99","id":"wintermelon-green-tea"},{"name":"Mango smoothie","price":"From $5.99","id":"mango-smoothie"},{"name":"Pink peach sparkling refresher","price":"From $5.99","id":"pink-peach-sparkling-refresher"}]}]};
+  const W = { "chili-oil-splashed-noodles": 10, "liangpi-cold-noodles": 5, "cumin-lamb-roujiamo": 8, "braised-pork-roujiamo": 4, "spicy-chicken-roujiamo": 3, "xi-an-lamb-bread-soup": 4, "beef-noodle-soup": 5, "dan-dan-noodles": 3, "garlic-noodles": 2, "garlic-cucumber-salad": 3, "red-chili-wontons-8": 3, "soup-dumplings-6": 7, "beef-dumplings": 2, "chicken-egg-rolls-2": 2, "tea-egg": 2, "hong-kong-milk-tea": 5, "taro-ube-latte": 3, "wintermelon-green-tea": 3, "mango-smoothie": 2, "pink-peach-sparkling-refresher": 2 };
+  const MENU = SITE.categories.flatMap(c => c.items.map(it => ({ id: it.id, en: it.name, zh: it.chinese || "", price: +(String(it.price).match(/[\d.]+/) || [0])[0], w: W[it.id] ?? 1, drink: c.id === "drinks", cat: c.id })));
+  T.en.cats = Object.fromEntries(SITE.categories.map(c => [c.id, c.title]));
+  T.zh.cats = { "xian-specials": "西安特色", noodles: "手工面", "small-plates": "小菜", "dim-sum": "点心", drinks: "茶饮" };
   const BY_ID = Object.fromEntries(MENU.map(m => [m.id, m]));
   const WSUM = MENU.reduce((s, m) => s + m.w, 0), DRINKS = MENU.filter(m => m.drink);
-  const nameOf = m => lang === "zh" ? m.zh : m.en;
+  const nameOf = m => lang === "zh" && m.zh ? m.zh : m.en;
   const altOf = m => lang === "zh" ? m.en : m.zh;
 
   function rng(seed) { return function () { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let x = Math.imul(seed ^ seed >>> 15, 1 | seed); x = x + Math.imul(x ^ x >>> 7, 61 | x) ^ x; return ((x ^ x >>> 14) >>> 0) / 4294967296; }; }
@@ -754,7 +752,7 @@ html { scroll-behavior: smooth; }
     const lines = new Map(), n = 1 + Math.floor(r() * r() * 4) + (type === "delivery" && r() < 0.4 ? 1 : 0);
     for (let i = 0; i < n; i++) { const m = pick(r); lines.set(m.id, (lines.get(m.id) || 0) + (r() < 0.12 ? 2 : 1)); }
     if (r() < 0.35) { const m = DRINKS[Math.floor(r() * DRINKS.length)]; lines.set(m.id, (lines.get(m.id) || 0) + 1); }
-    if (r() < 0.012) lines.set("tray-half", 1);
+    r();
     const items = [...lines].map(([id, q]) => ({ id, q }));
     return { type, placed, items, total: items.reduce((s, it) => s + BY_ID[it.id].price * it.q, 0), name: NAMES[Math.floor(r() * NAMES.length)], doneAfter: (type === "delivery" ? 22 : 14) + r() * 12, sched: null };
   }
@@ -785,7 +783,7 @@ html { scroll-behavior: smooth; }
     if (dt.getDay() === 1) continue;
     if (((dt.getDay() + 6) % 7) < ((day.getDay() + 6) % 7)) break;
     const o = makeOrder(r, START - 300); o.type = "pickup"; o.name = "Kelly Services office"; o.sched = 12 * 60;
-    o.items = [{ id: "tray-half", q: 1 }, { id: "cucumber", q: 2 }, { id: "hk-tea", q: 6 }];
+    o.items = [{ id: "chili-oil-splashed-noodles", q: 3 }, { id: "garlic-cucumber-salad", q: 2 }, { id: "hong-kong-milk-tea", q: 6 }];
     o.total = o.items.reduce((x, it) => x + BY_ID[it.id].price * it.q, 0);
     FUTURE[key(dt)] = [o]; break;
   }
@@ -980,12 +978,15 @@ html { scroll-behavior: smooth; }
 
 
   // ---------- Menu tab ----------
-  const CATS = [["noodles", "面"], ["rjm", "夹"], ["soup", "汤"], ["rice", "饭"], ["dim", "点"], ["sides", "菜"], ["drinks", "饮"], ["catering", "聚"]];
-  const CAT_OF = { chili: "noodles", liangpi: "noodles", beef: "noodles", dandan: "noodles", "garlic-n": "noodles", glass: "noodles", "lamb-rjm": "rjm", "pork-rjm": "rjm", "chick-bun": "rjm", "beef-paomo": "soup", "lamb-soup": "soup", "chick-rice": "rice", "beef-rice": "rice", wonton: "dim", xlb: "dim", "beef-dump": "dim", "egg-roll": "dim", "shrimp-roll": "dim", "tea-egg": "dim", gluten: "sides", cucumber: "sides", "shred-chick": "sides", "tray-half": "catering" };
-  const KEEP = ["chili", "liangpi", "dandan", "beef", "lamb-rjm", "pork-rjm", "xlb", "wonton", "hk-tea", "taro", "mango", "tray-half"];
-  const DISH = MENU.filter(m => KEEP.includes(m.id)).map(m => ({ id: m.id, en: m.en, zh: m.zh, price: m.price, cat: m.drink ? "drinks" : CAT_OF[m.id], off: m.id === "dandan", photo: null }))
-    .sort((a, b) => CATS.findIndex(c => c[0] === a.cat) - CATS.findIndex(c => c[0] === b.cat));
-  let mcat = "all", mq = "", customN = 0;
+  const CATS = SITE.categories.map(c => [c.id, c.character]);
+  const STATE_KEY = "mca-menu-state"; // the website reads this same key, so changes show up there straight away
+  function loadState() { try { const x = JSON.parse(localStorage.getItem(STATE_KEY) || "{}"); return { off: x.off || [], added: x.added || [] }; } catch (_) { return { off: [], added: [] }; } }
+  function saveState() { try { localStorage.setItem(STATE_KEY, JSON.stringify({ off: DISH.filter(d => d.off).map(d => d.id), added: DISH.filter(d => d.custom).map(d => ({ id: d.id, name: d.en, chinese: d.zh, price: d.price, cat: d.cat })) })); } catch (_) {} }
+  const PHOTO = { "chili-oil-splashed-noodles": "/images/chili-oil-noodles.webp", "cumin-lamb-roujiamo": "/images/cumin-lamb-roujiamo.webp", "xi-an-lamb-bread-soup": "/images/lamb-bread-soup.webp", "soup-dumplings-6": "/images/soup-dumplings.webp" };
+  const saved = loadState();
+  const DISH = saved.added.map(x => ({ id: x.id, en: x.name, zh: x.chinese || "", price: +x.price, cat: x.cat, off: saved.off.includes(x.id), photo: null, custom: true }))
+    .concat(MENU.map(m => ({ id: m.id, en: m.en, zh: m.zh, price: m.price, cat: m.cat, off: saved.off.includes(m.id), photo: PHOTO[m.id] || null })));
+  let mcat = "all", mq = "";
   const ICON_CAM = '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l1.6-2.4h6.8L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.6"/></svg>';
   const ICON_PEN = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l4-1 11-11-3-3L5 16z"/></svg>';
   const catLabel = c => t().cats[c];
@@ -1003,7 +1004,7 @@ html { scroll-behavior: smooth; }
       ${off.length ? `<ul class="so-list">${off.map(d => `<li><span>${esc(lang === "zh" ? d.zh || d.en : d.en)}</span><button type="button" data-sw="${d.id}">${t().menuPutBack}</button></li>`).join("")}</ul>` : `<p>${t().menuAllOk}</p>`}
       ${noPhoto ? `<div class="warn">${t().menuNoPhoto(noPhoto)}</div>` : ""}
       <button type="button" class="cta" id="addDish">+ ${t().menuAdd}</button>
-      <a class="site-link" href="https://miss-chang-an-nffg.vercel.app/" target="_blank" rel="noopener">${t().menuSee}</a>`;
+      <p class="sync-note">${t().menuSync}</p><a class="site-link" href="/menu" target="_blank" rel="noopener">${t().menuSee}</a>`;
   }
   function dishHTML(d, j) {
     const nm = lang === "zh" && d.zh ? d.zh : d.en, alt = lang === "zh" ? (d.zh ? d.en : "") : d.zh;
@@ -1033,12 +1034,12 @@ html { scroll-behavior: smooth; }
   form.addEventListener("submit", e => {
     e.preventDefault();
     const f = new FormData(form), en = String(f.get("en")).trim(); if (!en) return;
-    DISH.unshift({ id: "c" + (++customN), en, zh: String(f.get("zh") || "").trim(), price: Math.max(0, +f.get("price") || 0), cat: f.get("cat"), off: false, photo: null });
+    DISH.unshift({ id: "new-" + Date.now().toString(36), en, zh: String(f.get("zh") || "").trim(), price: Math.max(0, +f.get("price") || 0), cat: f.get("cat"), off: false, photo: null, custom: true }); saveState();
     mcat = "all"; mq = ""; document.getElementById("menuSearch").value = ""; closeModal(); form.reset(); renderMenu(); toast(t().menuAdded(esc(en)));
   });
   document.getElementById("menuSearch").addEventListener("input", e => { mq = e.target.value; renderGrid(); });
   function setOff(id, off) {
-    const d = DISH.find(x => x.id === id); if (!d) return; d.off = off;
+    const d = DISH.find(x => x.id === id); if (!d) return; d.off = off; saveState();
     const card = document.querySelector(`.dish[data-id="${id}"]`);
     if (card) { card.classList.toggle("off", off); card.querySelector(".sw").setAttribute("aria-checked", !off); card.querySelector(".sw-l").textContent = off ? t().menuSold : t().menuOnMenu; }
     renderSide(); toast((off ? t().menuOffToast : t().menuOnToast)(esc(lang === "zh" && d.zh ? d.zh : d.en)));
@@ -1156,5 +1157,6 @@ html { scroll-behavior: smooth; }
   show(["orders", "sales", "menu", "site"].includes(h) ? h : "orders");
 })();
 </script>
+
 </body>
 </html>

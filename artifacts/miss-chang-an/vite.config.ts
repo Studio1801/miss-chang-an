@@ -1,7 +1,9 @@
 import path from 'path';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
-import { defineConfig } from 'vite';
+import { defineConfig, type Plugin } from 'vite';
+import { readFileSync } from 'node:fs';
+import { writeDashboard } from './scripts/build-dashboard.mjs';
 
 import runtimeErrorOverlay from '@replit/vite-plugin-runtime-error-modal';
 
@@ -27,9 +29,28 @@ if (!basePath) {
   );
 }
 
+// Keeps the website and the owner dashboard on one menu: regenerates /dashboard from src/data/menu.json
+// and publishes that file as /menu.json.
+function siteSync(): Plugin {
+  const menuPath = path.resolve(import.meta.dirname, 'src/data/menu.json');
+  return {
+    name: 'site-sync',
+    buildStart() { writeDashboard(); },
+    configureServer(server) {
+      writeDashboard();
+      server.middlewares.use((req, res, next) => {
+        if (req.url?.split('?')[0] === '/menu.json') { res.setHeader('content-type', 'application/json'); res.end(readFileSync(menuPath)); return; }
+        next();
+      });
+    },
+    generateBundle() { this.emitFile({ type: 'asset', fileName: 'menu.json', source: readFileSync(menuPath, 'utf8') }); },
+  };
+}
+
 export default defineConfig({
   base: basePath,
   plugins: [
+    siteSync(),
     react(),
     tailwindcss(),
     runtimeErrorOverlay(),

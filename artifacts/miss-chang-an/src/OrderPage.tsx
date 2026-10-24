@@ -147,7 +147,7 @@ export default function OrderPage({ categories }: { categories: Category[] }) {
                           <span className="ord-price">{it.price}</span>
                         </div>
                         {n === 0 ? (
-                          <button type="button" className="ord-add" onClick={() => change(key, 1)} aria-label={`Add ${it.name}`} data-testid={`button-add-${cat.id}-${i}`}>Add</button>
+                          <button type="button" className="ord-add" onClick={() => change(key, 1)} aria-label={`Add ${it.name}`} data-testid={`button-add-${cat.id}-${i}`} disabled={it.soldOut}>{it.soldOut ? 'Sold out' : 'Add'}</button>
                         ) : (
                           <div className="ord-qty" role="group" aria-label={`${it.name} quantity`}>
                             <button type="button" onClick={() => change(key, -1)} aria-label={`Remove one ${it.name}`} data-testid={`button-decrease-${cat.id}-${i}`}>-</button>
