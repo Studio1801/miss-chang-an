@@ -4,6 +4,8 @@ import { Link, Route, Switch, useLocation } from 'wouter';
 import type { Category } from './types/menu';
 import menuData from './data/menu.json';
 import OrderPage from './OrderPage';
+import QuickOrder from './QuickOrder';
+import ChatWidget from './ChatWidget';
 import { RouteAccessibility } from './components/route-accessibility';
 import { useStatus } from './lib/hours';
 import { useReveal } from './lib/reveal';
@@ -139,7 +141,7 @@ function Header() {
           <Link href="/" className={`nav-link ${location === '/' ? 'active' : ''}`} aria-current={location === '/' ? 'page' : undefined} data-testid="link-header-home">Home</Link>
           <Link href="/#about" className="nav-link" data-testid="link-header-about" onClick={() => { setOpen(false); if (location === '/') document.getElementById('about')?.scrollIntoView(); }}>About Us</Link>
           <Link href="/menu" className={`nav-link ${location === '/menu' ? 'active' : ''}`} aria-current={location === '/menu' ? 'page' : undefined} data-testid="link-header-menu">Our Dishes</Link>
-          <Link className={`nav-link ${location === ORDER_URL ? 'active' : ''}`} href={ORDER_URL} aria-current={location === ORDER_URL ? 'page' : undefined} data-testid="link-header-order">Order online</Link>
+          <Link href="/#order-here" className="nav-link" data-testid="link-header-order" onClick={() => { setOpen(false); if (location === '/') document.getElementById('order-here')?.scrollIntoView(); }}>Order online</Link>
           <Link href="/#visit" className="nav-link" data-testid="link-header-visit" onClick={() => { setOpen(false); if (location === '/') document.getElementById('visit')?.scrollIntoView(); }}>Contact</Link>
         </div>
         <div className="header-actions"><a href={CHOWBUS_URL} target="_blank" rel="noopener noreferrer" className="button button-red header-cta" data-testid="link-header-cta">Order pickup <ArrowRight size={18} aria-hidden="true" /></a>
@@ -178,6 +180,7 @@ function Faq() {
 
 function Home() {
   useReveal('home');
+  const liveMenu = useLiveMenu(categories);
   const img = (name: string) => `${import.meta.env.BASE_URL}images/${name}`;
   return <>
     <PageMeta title="Miss Chang An 念长安 | Xi'an Noodles in Troy, MI" description="Miss Chang An is a family-owned Xi'an street food restaurant in Troy, Michigan. Hand-pulled noodles, cumin lamb roujiamo, liangpi, soup dumplings and boba. 5071 Rochester Rd. Order pickup online." />
@@ -189,7 +192,7 @@ function Home() {
         <p className="hero-sub">Hand-pulled noodles • Roujiamo • Boba café</p>
         <div className="hero-status"><OpenBadge tone="light" /></div>
         <p className="hero-description">The street food of Xi'an, made with patience on Rochester Road. Pull-apart noodles, crisp roujiamo, slow broth and boba, served Tuesday to Sunday.</p>
-        <div className="hero-actions"><Link href={ORDER_URL} className="button button-red" data-testid="link-hero-order">Order online <ArrowRight size={18} aria-hidden="true" /></Link><Link href="/menu" className="text-link dark" data-testid="link-hero-menu">See the full menu</Link><a href="#visit" className="text-link dark" data-testid="link-hero-hours">Hours and map</a></div>
+        <div className="hero-actions"><a href="#order-here" className="button button-red" data-testid="link-hero-order">Order online <ArrowRight size={18} aria-hidden="true" /></a><Link href="/menu" className="text-link dark" data-testid="link-hero-menu">See the full menu</Link><a href="#visit" className="text-link dark" data-testid="link-hero-hours">Hours and map</a></div>
         <ul className="hero-facts"><li><strong>{REVIEWS.rating}</strong> Google rating</li><li><strong>Made daily</strong> noodles and dumplings</li><li><strong>Troy, MI</strong> open Tue to Sun</li></ul>
       </div>
       <div className="hero-photos"><img src={img('chili-oil-noodles.webp')} alt="Chili oil noodles in a white bowl with bok choy" decoding="async" /><img src={img('cumin-lamb-roujiamo.webp')} alt="Cumin lamb roujiamo in a crisp flatbread" decoding="async" /><img src={img('soup-dumplings.webp')} alt="Soup dumplings in a bamboo steamer" decoding="async" /><div className="sticker" aria-hidden="true"><span className="st-a">Hand pulled</span><span className="st-zh zh">每日新鲜</span><span className="st-b">Made daily</span></div></div>
@@ -199,6 +202,7 @@ function Home() {
       <div className="proof-head reveal"><span className="eyebrow">Loved locally</span><h2 id="proof-heading">Worth the trip.</h2></div>
       <div className="quote-grid">{quotes.map((q, i) => <figure className="quote reveal" style={{ transitionDelay: `${i * 90}ms` }} key={q}><blockquote>{`\u201C${q}\u201D`}</blockquote><figcaption>Google guest</figcaption></figure>)}</div>
     </div></section>
+    <QuickOrder categories={liveMenu} chowbusUrl={CHOWBUS_URL} phone={PHONE} />
     <section className="about wrap reveal" id="about" aria-labelledby="about-heading"><div><span className="eyebrow">About us</span><h2 id="about-heading">Missing <em>Chang'an.</em></h2><p>Chang'an is the old name for Xi'an, the city at the start of the Silk Road. 念 means to miss someone, to keep a place in mind. So the menu is the food Xi'an eats on the street, made here by hand: pulled noodles, roujiamo, the Chinese burger, and cold liangpi in chili oil. Boba and smoothies go alongside.</p><p className="aside">We used to be Nook Tea &amp; Cafe. We still make the boba.</p><p className="keywords">Cold noodles · Chinese burger · Spicy flavor · Rich broth · Traditional taste</p></div><img className="about-photo" src={img('lamb-bread-soup.webp')} alt="Lamb bread soup with torn flatbread, wood ear and cilantro" loading="lazy" decoding="async" /></section>
     <section className="dishes" id="dishes" aria-labelledby="featured-heading"><div className="wrap"><div className="section-heading reveal"><div><span className="eyebrow">Our dishes</span><h2 id="featured-heading">Start here.</h2></div><p>Prices from our ordering page</p></div><div className="featured-grid">{featured.map((item, index) => <article className="featured-item reveal" style={{ transitionDelay: `${(index % 2) * 90}ms` }} key={item.name}><div className="featured-media"><img className={`featured-image featured-image-${index + 1}`} src={img(item.image)} alt={item.name} loading="lazy" decoding="async" /></div><div className="featured-row"><h3>{item.name}<span className="featured-cn zh" lang="zh">{item.chinese}</span></h3><span className="featured-price">{item.price}</span></div><p>{item.description}</p></article>)}</div><Link href="/menu" className="text-link dark featured-link" data-testid="link-featured-menu">See the full menu <ArrowUpRight size={16} aria-hidden="true" /></Link></div></section>
     <section className="how wrap" aria-labelledby="how-heading"><div className="how-head reveal"><span className="eyebrow">How to order</span><h2 id="how-heading">Three ways<br />in.</h2></div><div className="how-list">
@@ -262,7 +266,7 @@ function NotFound() {
 
 function App() {
   const live = useLiveMenu(categories);
-  return <><a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:bg-[#f7efe2] focus:p-4" data-testid="link-skip-content">Skip to content</a><Header /><main id="main-content" tabIndex={-1}><Switch><Route path="/" component={Home} /><Route path="/menu" component={MenuPage} /><Route path="/order"><PageMeta title="Order Pickup | Miss Chang An" description="Choose Miss Chang An dishes, review your basket and try our simple in-house pickup ordering flow." /><OrderPage categories={live} /></Route><Route path="/privacy">{() => <LegalPage type="privacy" />}</Route><Route path="/terms">{() => <LegalPage type="terms" />}</Route><Route component={NotFound} /></Switch></main><Footer /><RouteAccessibility /></>;
+  return <><a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:bg-[#f7efe2] focus:p-4" data-testid="link-skip-content">Skip to content</a><Header /><main id="main-content" tabIndex={-1}><Switch><Route path="/" component={Home} /><Route path="/menu" component={MenuPage} /><Route path="/order"><PageMeta title="Order Pickup | Miss Chang An" description="Choose Miss Chang An dishes, review your basket and try our simple in-house pickup ordering flow." /><OrderPage categories={live} /></Route><Route path="/privacy">{() => <LegalPage type="privacy" />}</Route><Route path="/terms">{() => <LegalPage type="terms" />}</Route><Route component={NotFound} /></Switch></main><Footer /><ChatWidget categories={live} chowbusUrl={CHOWBUS_URL} phone={PHONE} instagram={INSTAGRAM_URL} mapUrl={MAP_URL} address={ADDRESS} /><RouteAccessibility /></>;
 }
 
 export default App;
