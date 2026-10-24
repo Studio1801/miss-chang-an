@@ -14,6 +14,11 @@ const MAP_URL = 'https://www.google.com/maps/search/?api=1&query=Miss+Chang+An+5
 const CHOWBUS_URL = 'https://pos.chowbus.com/online-ordering/store/Miss-Chang-An/24125';
 const INSTAGRAM_URL = 'https://instagram.com/misschangan.troy';
 const FACEBOOK_URL = 'https://facebook.com/profile.php?id=61565498745253';
+const REVIEWS = { rating: '4.7', count: '290+', url: 'https://www.google.com/maps/search/?api=1&query=Miss+Chang+An+5071+Rochester+Rd+Troy+MI+48085' };
+const quotes = [
+  'The boba is delicious! It\u2019s definitely a hidden gem.',
+  'Everything we\u2019ve had has been exceptional.',
+];
 const PHONE = 'tel:+13138257757';
 const ADDRESS = '5071 Rochester Rd, Troy, MI 48085';
 
@@ -134,10 +139,11 @@ function Header() {
           <Link href="/" className={`nav-link ${location === '/' ? 'active' : ''}`} aria-current={location === '/' ? 'page' : undefined} data-testid="link-header-home">Home</Link>
           <Link href="/#about" className="nav-link" data-testid="link-header-about" onClick={() => { setOpen(false); if (location === '/') document.getElementById('about')?.scrollIntoView(); }}>About Us</Link>
           <Link href="/menu" className={`nav-link ${location === '/menu' ? 'active' : ''}`} aria-current={location === '/menu' ? 'page' : undefined} data-testid="link-header-menu">Our Dishes</Link>
-          <Link className={`nav-link ${location === ORDER_URL ? 'active' : ''}`} href={ORDER_URL} aria-current={location === ORDER_URL ? 'page' : undefined} data-testid="link-header-order">Online Ordering</Link>
+          <Link className={`nav-link ${location === ORDER_URL ? 'active' : ''}`} href={ORDER_URL} aria-current={location === ORDER_URL ? 'page' : undefined} data-testid="link-header-order">Order online</Link>
           <Link href="/#visit" className="nav-link" data-testid="link-header-visit" onClick={() => { setOpen(false); if (location === '/') document.getElementById('visit')?.scrollIntoView(); }}>Contact</Link>
         </div>
-        <div className="header-social"><a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" aria-label="Miss Chang An on Instagram" data-testid="link-header-instagram"><Instagram size={22} aria-hidden="true" /></a><a href={FACEBOOK_URL} target="_blank" rel="noopener noreferrer" aria-label="Miss Chang An on Facebook" data-testid="link-header-facebook"><Facebook size={22} aria-hidden="true" /></a></div>
+        <div className="header-actions"><a href={CHOWBUS_URL} target="_blank" rel="noopener noreferrer" className="button button-red header-cta" data-testid="link-header-cta">Order pickup <ArrowRight size={18} aria-hidden="true" /></a>
+        <div className="header-social"><a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" aria-label="Miss Chang An on Instagram" data-testid="link-header-instagram"><Instagram size={22} aria-hidden="true" /></a><a href={FACEBOOK_URL} target="_blank" rel="noopener noreferrer" aria-label="Miss Chang An on Facebook" data-testid="link-header-facebook"><Facebook size={22} aria-hidden="true" /></a></div></div>
       </nav>
     </div>
   </header>;
@@ -157,7 +163,7 @@ function Footer() {
 }
 
 function OrderBand() {
-  return <section className="order-band" aria-labelledby="order-heading"><div className="wrap order-inner"><div><span className="eyebrow">Closed Mondays</span><h2 id="order-heading">Your food.<br />Your order.</h2><p>Build your order here, then finish it on Chowbus, or call (313) 825-7757.</p></div><div className="order-actions"><a href={CHOWBUS_URL} target="_blank" rel="noopener noreferrer" className="button button-light" data-testid="link-order-chowbus-bottom">Order on Chowbus <ArrowUpRight size={19} aria-hidden="true" /></a><Link href={ORDER_URL} className="text-link" data-testid="link-order-pickup-bottom">Build an order first</Link></div></div></section>;
+  return <section className="order-band" aria-labelledby="order-heading"><div className="wrap order-inner"><div><span className="eyebrow">Pickup or delivery</span><h2 id="order-heading">Dinner is<br />one click away.</h2><p>See the full menu here, then place your secure order directly with Chowbus. The handoff is clear before you leave.</p></div><div className="order-actions"><a href={CHOWBUS_URL} target="_blank" rel="noopener noreferrer" className="button button-light" data-testid="link-order-chowbus-bottom">Order online <ArrowRight size={19} aria-hidden="true" /></a><a href={PHONE} className="text-link" data-testid="link-order-call">Prefer to call? (313) 825-7757</a></div></div></section>;
 }
 
 function HoursBox() {
@@ -177,14 +183,21 @@ function Home() {
     <PageMeta title="Miss Chang An 念长安 | Xi'an Noodles in Troy, MI" description="Miss Chang An is a family-owned Xi'an street food restaurant in Troy, Michigan. Hand-pulled noodles, cumin lamb roujiamo, liangpi, soup dumplings and boba. 5071 Rochester Rd. Order pickup online." />
     <section className="hero" aria-labelledby="hero-heading"><div className="wrap">
       <div className="hero-copy">
+        <p className="hero-place"><span className="zh" aria-hidden="true">念长安</span><span>Troy, Michigan</span></p>
         <p className="hero-kicker">Authentic Xi'an street food</p>
-        <p className="hero-sub">Fresh hand-pulled noodles • Boba café</p>
-        <h1 id="hero-heading">Miss Chang An</h1>
+        <h1 id="hero-heading"><span className="sr-only">Miss Chang An: </span><span className="h1-a">A taste of</span><em className="h1-b">Chang'an.</em></h1>
+        <p className="hero-sub">Hand-pulled noodles • Roujiamo • Boba café</p>
         <div className="hero-status"><OpenBadge tone="light" /></div>
-        <p className="hero-description">Chili oil noodles, cumin lamb roujiamo, liangpi, lamb bread soup, soup dumplings and boba, on Rochester Road in Troy. Small, family-owned, open Tuesday to Sunday.</p>
-        <div className="hero-actions"><Link href={ORDER_URL} className="button button-red" data-testid="link-hero-order">Order now <ArrowRight size={18} aria-hidden="true" /></Link><Link href="/menu" className="text-link dark" data-testid="link-hero-menu">See the menu</Link><a href="#visit" className="text-link dark" data-testid="link-hero-hours">Hours and map</a></div>
+        <p className="hero-description">The street food of Xi'an, made with patience on Rochester Road. Pull-apart noodles, crisp roujiamo, slow broth and boba, served Tuesday to Sunday.</p>
+        <div className="hero-actions"><Link href={ORDER_URL} className="button button-red" data-testid="link-hero-order">Order online <ArrowRight size={18} aria-hidden="true" /></Link><Link href="/menu" className="text-link dark" data-testid="link-hero-menu">See the full menu</Link><a href="#visit" className="text-link dark" data-testid="link-hero-hours">Hours and map</a></div>
+        <ul className="hero-facts"><li><strong>{REVIEWS.rating}</strong> Google rating</li><li><strong>Made daily</strong> noodles and dumplings</li><li><strong>Troy, MI</strong> open Tue to Sun</li></ul>
       </div>
-      <div className="hero-photos"><img src={img('chili-oil-noodles.webp')} alt="Chili oil noodles in a white bowl with bok choy" decoding="async" /><img src={img('cumin-lamb-roujiamo.webp')} alt="Cumin lamb roujiamo in a crisp flatbread" decoding="async" /><img src={img('soup-dumplings.webp')} alt="Soup dumplings in a bamboo steamer" decoding="async" /></div>
+      <div className="hero-photos"><img src={img('chili-oil-noodles.webp')} alt="Chili oil noodles in a white bowl with bok choy" decoding="async" /><img src={img('cumin-lamb-roujiamo.webp')} alt="Cumin lamb roujiamo in a crisp flatbread" decoding="async" /><img src={img('soup-dumplings.webp')} alt="Soup dumplings in a bamboo steamer" decoding="async" /><div className="sticker" aria-hidden="true"><span className="st-a">Hand pulled</span><span className="st-zh zh">每日新鲜</span><span className="st-b">Made daily</span></div></div>
+    </div></section>
+    <section className="proof" aria-labelledby="proof-heading"><div className="wrap">
+      <div className="rating-card reveal"><div><div className="stars" role="img" aria-label={`${REVIEWS.rating} out of 5 stars`}>{'★★★★★'}</div><p className="rating-num">{REVIEWS.rating}</p><p className="rating-cap">Google rating from {REVIEWS.count} local reviews</p></div><a href={REVIEWS.url} target="_blank" rel="noopener noreferrer" className="text-link dark" data-testid="link-read-reviews">Read the reviews <ArrowUpRight size={16} aria-hidden="true" /></a></div>
+      <div className="proof-head reveal"><span className="eyebrow">Loved locally</span><h2 id="proof-heading">Worth the trip.</h2></div>
+      <div className="quote-grid">{quotes.map((q, i) => <figure className="quote reveal" style={{ transitionDelay: `${i * 90}ms` }} key={q}><blockquote>{`\u201C${q}\u201D`}</blockquote><figcaption>Google guest</figcaption></figure>)}</div>
     </div></section>
     <section className="about wrap reveal" id="about" aria-labelledby="about-heading"><div><span className="eyebrow">About us</span><h2 id="about-heading">Missing <em>Chang'an.</em></h2><p>Chang'an is the old name for Xi'an, the city at the start of the Silk Road. 念 means to miss someone, to keep a place in mind. So the menu is the food Xi'an eats on the street, made here by hand: pulled noodles, roujiamo, the Chinese burger, and cold liangpi in chili oil. Boba and smoothies go alongside.</p><p className="aside">We used to be Nook Tea &amp; Cafe. We still make the boba.</p><p className="keywords">Cold noodles · Chinese burger · Spicy flavor · Rich broth · Traditional taste</p></div><img className="about-photo" src={img('lamb-bread-soup.webp')} alt="Lamb bread soup with torn flatbread, wood ear and cilantro" loading="lazy" decoding="async" /></section>
     <section className="dishes" id="dishes" aria-labelledby="featured-heading"><div className="wrap"><div className="section-heading reveal"><div><span className="eyebrow">Our dishes</span><h2 id="featured-heading">Start here.</h2></div><p>Prices from our ordering page</p></div><div className="featured-grid">{featured.map((item, index) => <article className="featured-item reveal" style={{ transitionDelay: `${(index % 2) * 90}ms` }} key={item.name}><div className="featured-media"><img className={`featured-image featured-image-${index + 1}`} src={img(item.image)} alt={item.name} loading="lazy" decoding="async" /></div><div className="featured-row"><h3>{item.name}<span className="featured-cn zh" lang="zh">{item.chinese}</span></h3><span className="featured-price">{item.price}</span></div><p>{item.description}</p></article>)}</div><Link href="/menu" className="text-link dark featured-link" data-testid="link-featured-menu">See the full menu <ArrowUpRight size={16} aria-hidden="true" /></Link></div></section>
