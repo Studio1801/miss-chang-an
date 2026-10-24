@@ -47,6 +47,51 @@ main { padding-block: 28px 80px; }
 .sec-head h2 { font-size: clamp(22px, 3vw, 28px); }
 .sec-head p { margin: 0; color: var(--muted); font-size: 14.5px; }
 
+.dp-row { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-bottom: 26px; }
+.dp-pill { border: 1px solid var(--line); background: var(--card); border-radius: 20px; padding: 12px 6px; text-align: center; display: grid; gap: 1px; min-height: 84px; align-content: center; transition: transform .2s, background .2s; }
+.dp-pill:hover:not(:disabled) { transform: translateY(-2px); }
+.dp-pill:disabled { opacity: .45; cursor: default; }
+.dp-pill small { color: var(--muted); font-size: 13px; font-weight: 600; }
+.dp-pill b { font-family: var(--serif); font-size: 22px; line-height: 1.1; }
+.dp-pill span { color: var(--muted); font-size: 12.5px; min-height: 18px; }
+.dp-pill.is-today small { color: var(--red); }
+.dp-pill.on { background: var(--red); border-color: var(--red); color: var(--bg); }
+.dp-pill.on small, .dp-pill.on span { color: #f8d9cc; }
+.board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; align-items: start; }
+.lane { border-radius: 26px; padding: 18px 16px 16px; background: var(--paper); min-height: 160px; }
+.lane h3 { font-family: var(--sans); font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 10px; margin: 0 4px 14px; }
+.lane h3 i { width: 12px; height: 12px; border-radius: 50%; background: var(--red); }
+.lane h3 em { margin-left: auto; font-style: normal; min-width: 28px; height: 28px; border-radius: 999px; display: grid; place-items: center; background: rgba(255,255,255,.65); font-size: 14px; }
+.lane.l-prep { background: #f6e7b8; } .lane.l-prep h3 i { background: #d19a1c; }
+.lane.l-ready { background: #dcebd5; } .lane.l-ready h3 i { background: var(--green); }
+.lane.l-new { background: #f8dccb; }
+.lane > p { margin: 0; padding: 18px 4px; color: var(--muted); font-size: 14.5px; text-align: center; }
+.lane ul, .tks { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.tks { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); margin-top: 14px; }
+.tk { background: #fffdf6; border-radius: 20px; padding: 16px 18px; box-shadow: 0 10px 22px -18px rgba(61,26,19,.6); display: grid; gap: 6px; }
+.tk.web { box-shadow: 0 0 0 2px var(--red), 0 10px 22px -18px rgba(61,26,19,.6); }
+.tk.s-done { background: rgba(255,253,246,.6); box-shadow: none; border: 1px solid var(--line); }
+.tk-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.tk-head b { font-size: 18px; }
+.tk-head span { color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tk-meta { display: flex; align-items: center; gap: 8px; }
+.ty { font-size: 12.5px; font-weight: 700; color: var(--muted); background: var(--paper); padding: 2px 10px; border-radius: 999px; }
+.tk-lines { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 4px; font-size: 15px; }
+.tk-lines li { display: flex; gap: 10px; align-items: baseline; }
+.tk-lines .q { flex: none; min-width: 22px; font-weight: 700; color: var(--red); }
+.tk-note { margin: 2px 0 0; font-size: 13.5px; color: var(--muted); font-style: italic; }
+.tk-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 8px; padding-top: 10px; border-top: 1px dashed var(--line); }
+.tk-foot b { font-family: var(--serif); font-size: 20px; }
+.go { border: 0; border-radius: 999px; padding: 12px 22px; min-height: 48px; font-weight: 700; background: var(--red); color: var(--bg); flex: 1; max-width: 190px; }
+.go:hover { background: var(--red-d); }
+.l-prep .go { background: #b07c10; } .l-prep .go:hover { background: #8d6209; }
+.l-ready .go { background: var(--green); } .l-ready .go:hover { background: #2f6a3d; }
+.handed { margin-top: 22px; }
+.handed summary { cursor: pointer; font-weight: 700; padding: 12px 4px; list-style: none; display: flex; align-items: center; gap: 10px; color: var(--muted); min-height: 48px; }
+.handed summary::before { content: "›"; font-size: 22px; transition: transform .2s; }
+.handed[open] summary::before { transform: rotate(90deg); }
+.handed summary em { font-style: normal; background: var(--paper); border-radius: 999px; padding: 2px 12px; font-size: 14px; }
+.day-sum { margin: 0; font-size: 17px; color: var(--muted); } .day-sum b { font-family: var(--serif); font-size: 26px; color: var(--ink); }
 .band { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--ink); color: var(--bg); border-radius: 26px; padding: clamp(22px, 3vw, 34px) clamp(22px, 4vw, 48px); gap: 20px; margin-bottom: 26px; }
 .band span { color: #e4cdb0; font-size: 14.5px; display: block; }
 .band b { font-family: var(--serif); font-size: clamp(34px, 5.4vw, 58px); line-height: 1.1; display: block; margin-top: 4px; }
@@ -176,6 +221,7 @@ main { padding-block: 28px 80px; }
 .demo { background: var(--paper); border-radius: 14px; padding: 10px 16px; font-size: 13.5px; color: var(--muted); margin-bottom: 20px; }
 
 @media (min-width: 801px) { .strip { margin-inline: 0; padding-inline: 0; } }
+@media (max-width: 900px) { .board { grid-template-columns: 1fr; } }
 @media (max-width: 800px) {
   .split { grid-template-columns: 1fr; }
   .dishes { grid-template-columns: 1fr; }
@@ -183,6 +229,7 @@ main { padding-block: 28px 80px; }
   .form { grid-template-columns: 1fr; } .form .full { grid-column: 1; }
 }
 @media (max-width: 560px) {
+  .dp-row { gap: 6px; } .dp-pill { padding: 10px 2px; min-height: 76px; } .dp-pill span { font-size: 11px; } .dp-pill b { font-size: 18px; }
   .band { grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 20px; } .band span { font-size: 12.5px; }
   .brand .bz { display: none; }
   .stats { grid-template-columns: 1fr 1fr; } .stat:first-child { grid-column: 1 / 3; }
@@ -229,10 +276,10 @@ main { padding-block: 28px 80px; }
   const T = {
     en: {
       tabs: { orders: "Orders", menu: "Menu", site: "Website", sales: "Sales" },
-      today: "Today", ordersToday: "Orders today", salesToday: "Sales today", waiting: "Still to hand over", avg: n => `${n} average order`, pickupN: n => `${n} pickup`, allDone: "all caught up",
-      queue: "Today's orders", queueSub: "Tap the button as each order moves along.", none: "No orders yet today.", thisWeek: "This week", orders: n => n === 1 ? "1 order" : `${n} orders`, closed: "Closed",
+      today: "Today", ordersToday: "Orders today", salesToday: "Sales today", waiting: "Open orders", avg: n => `${n} average order`, pickupN: n => `${n} pickup`, allDone: "all caught up",
+      queue: "Today's orders", queueSub: "", none: "No orders yet today.", thisWeek: "This week", orders: n => n === 1 ? "1 order" : `${n} orders`, closed: "Closed",
       web: "Website", pickup: "Pickup", delivery: "Delivery",
-      st: { new: "New", prep: "Cooking", ready: "Ready", done: "Handed over" }, go: { new: "Start", prep: "Mark ready", ready: "Handed over" },
+      st: { new: "New", prep: "Cooking", ready: "Ready", done: "Handed over" }, go: { new: "Start cooking", prep: "Mark ready", ready: "Handed over" }, lane: { new: "New", prep: "Cooking", ready: "Ready for pickup" }, laneEmpty: { new: "No new orders", prep: "Nothing cooking", ready: "Nothing waiting" },
       demoNote: "Sample orders for the demo. Orders placed on your website's pickup page show up at the top, marked Website.",
       menuTitle: "Menu", menuSub: "Same dishes and prices as your website. Changes show on the site straight away.", find: "Find a dish", all: "All", addDish: "Add a dish", sold: "Sold out", avail: "On", availL: "Available", off: "Off", price: "Price", remove: "Remove",
       fName: "Dish name", fZh: "Chinese name (optional)", fPrice: "Price", fCat: "Section", fDesc: "Short description (optional)", save: "Add dish", cancel: "Cancel", noMatch: "No dishes match.",
@@ -251,7 +298,7 @@ main { padding-block: 28px 80px; }
       today: "今天", ordersToday: "今日订单", salesToday: "今日销售", waiting: "待交付", avg: n => `平均每单 ${n}`, pickupN: n => `${n} 单自取`, allDone: "全部完成",
       queue: "今日订单", queueSub: "订单每进展一步，点一下按钮。", none: "今天还没有订单。", thisWeek: "本周", orders: n => `${n} 单`, closed: "休息",
       web: "网站", pickup: "自取", delivery: "外送",
-      st: { new: "新单", prep: "制作中", ready: "已备好", done: "已交付" }, go: { new: "开始", prep: "备好了", ready: "已交付" },
+      st: { new: "新单", prep: "制作中", ready: "已备好", done: "已交付" }, go: { new: "开始制作", prep: "备好了", ready: "已交付" }, lane: { new: "新单", prep: "制作中", ready: "待取餐" }, laneEmpty: { new: "没有新单", prep: "没有在做的", ready: "没有待取的" },
       demoNote: "这是演示用的示例订单。顾客在网站自取页面下的单，会显示在最上面，并标注“网站”。",
       menuTitle: "菜单", menuSub: "菜品和价格与网站相同，修改后网站立即更新。", find: "查找菜品", all: "全部", addDish: "添加菜品", sold: "售罄", avail: "供应", availL: "供应中", off: "已关", price: "价格", remove: "删除",
       fName: "菜名", fZh: "中文名（选填）", fPrice: "价格", fCat: "分类", fDesc: "简短描述（选填）", save: "添加", cancel: "取消", noMatch: "没有匹配的菜品。",
@@ -306,7 +353,7 @@ main { padding-block: 28px 80px; }
     return out.sort((a, b) => a.mins - b.mins);
   }
   const nowMin = now.getHours() * 60 + now.getMinutes();
-  const todaySample = dayOrders(now).filter(o => o.mins <= Math.max(nowMin, 720)).map(o => ({ ...o, status: o.mins < nowMin - 40 ? "done" : o.mins < nowMin - 20 ? "ready" : o.mins < nowMin - 8 ? "prep" : "new" }));
+  const todaySample = (() => { const l = dayOrders(now).filter(o => o.mins <= Math.max(nowMin, 720)); return l.map((o, i) => { const k = l.length - 1 - i; return { ...o, status: k < 2 ? "new" : k < 4 ? "prep" : k < 5 ? "ready" : "done" }; }); })();
   const weekStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - ((now.getDay() + 6) % 7));
   const weekDays = off => Array.from({ length: 7 }, (_, i) => { const d = new Date(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate() + i + off * 7); const past = dkey(d) < dkey(now), isToday = dkey(d) === dkey(now); let os = dayOrders(d); if (isToday) os = todaySample.concat(loadOrders().filter(o => dkey(new Date(o.at)) === dkey(now)).map(o => ({ total: o.total / 100, type: "pickup", items: o.lines.map(l => ({ id: l.key, name: l.name, qty: l.qty })) }))); if (!past && !isToday) os = []; return { d, isToday, past, os, sum: os.reduce((s, o) => s + o.total, 0) }; });
 
@@ -321,31 +368,47 @@ main { padding-block: 28px 80px; }
     const web = webOrders.filter(o => dkey(new Date(o.at)) === dkey(now)).map(o => ({ id: o.id, web: true, name: o.name, mins: new Date(o.at).getHours() * 60 + new Date(o.at).getMinutes(), type: "pickup", total: o.total / 100, items: o.lines.map(l => ({ name: l.name, qty: l.qty })), status: o.status || "new", notes: o.notes }));
     return web.sort((a, b) => b.mins - a.mins).concat(todaySample.slice().reverse());
   }
-  let wo = 0, firstScroll = true;
+  let wo = 0, sel = dkey(now);
   function dayList(d) {
-    if (dkey(d) === dkey(now)) { const l = allToday(); return l.filter(o => o.status !== "done").concat(l.filter(o => o.status === "done")).sort((x, y) => (x.status === "done") - (y.status === "done") || (x.status === "done" ? x.mins - y.mins : y.mins - x.mins)); }
+    if (dkey(d) === dkey(now)) return allToday().slice().sort((x, y) => x.mins - y.mins);
     if (dkey(d) < dkey(now)) return dayOrders(d).map(o => ({ ...o, status: "done" }));
     return [];
   }
-  function card(o, live) {
-    const L = t(), what = o.items.map(i => `${i.qty > 1 ? i.qty + " x " : ""}${esc(i.name)}`).join(", ");
-    return `<li class="oc ${o.web ? "web" : ""} ${o.status === "done" ? "done" : ""}"><div class="oc-top"><span>${clock(o.mins)}</span><b>${money2(o.total)}</b></div><div class="oc-name">${esc(o.name)}${o.web ? `<span class="tag">${L.web}</span>` : ""}</div><div class="oc-what">${what}</div><div class="oc-foot"><span class="chip ${o.status}">${L.st[o.status]}</span><span class="oc-type">${L[o.type]}</span></div>${live && o.status !== "done" ? `<button type="button" class="act" data-adv="${o.id}">${L.go[o.status]}</button>` : ""}</li>`;
+  function ticket(o, live) {
+    const L = t();
+    return `<li class="tk ${o.web ? "web" : ""} s-${o.status}"><div class="tk-head"><b>${esc(o.name)}</b><span>${clock(o.mins)}</span></div>
+      <div class="tk-meta"><span class="ty">${L[o.type]}</span>${o.web ? `<span class="tag">${L.web}</span>` : ""}</div>
+      <ul class="tk-lines">${o.items.map(i => `<li><span class="q">${i.qty}</span>${esc(i.name)}</li>`).join("")}</ul>${o.notes ? `<p class="tk-note">“${esc(o.notes)}”</p>` : ""}
+      <div class="tk-foot"><b>${money2(o.total)}</b>${live && o.status !== "done" ? `<button type="button" class="go" data-adv="${o.id}">${L.go[o.status]}</button>` : ""}</div></li>`;
   }
   function renderOrders() {
     const L = t(), list = allToday(), n = list.length, sales = list.reduce((s, o) => s + o.total, 0), left = list.filter(o => o.status !== "done").length;
     const days = Array.from({ length: 7 }, (_, i) => new Date(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate() + i + wo * 7));
-    const range = `${L.mon[days[0].getMonth()]} ${days[0].getDate()} – ${days[0].getMonth() === days[6].getMonth() ? "" : L.mon[days[6].getMonth()] + " "}${days[6].getDate()}`.replace("–", lang === "zh" ? "至" : "to");
-    const cols = days.map(d => {
-      const isToday = dkey(d) === dkey(now), os = dayList(d), sum = os.reduce((s, o) => s + o.total, 0), closed = d.getDay() === 1;
-      return `<section class="col ${isToday ? "now" : ""}" aria-label="${L.daysLong[d.getDay()]} ${d.getDate()}"><header><div><small>${L.days[d.getDay()]}</small><b>${d.getDate()}</b></div>${isToday ? `<span class="today">${L.today}</span>` : ""}<p>${closed ? L.closed : os.length ? `${money(sum)} · ${L.orders(os.length)}` : dkey(d) > dkey(now) ? "" : L.orders(0)}</p></header>${os.length ? `<ul>${os.map(o => card(o, isToday)).join("")}</ul>` : ""}</section>`;
+    if (!days.some(d => dkey(d) === sel)) sel = dkey(wo === 0 ? now : days[1]);
+    const range = `${L.mon[days[0].getMonth()]} ${days[0].getDate()} ${lang === "zh" ? "至" : "to"} ${days[0].getMonth() === days[6].getMonth() ? "" : L.mon[days[6].getMonth()] + " "}${days[6].getDate()}`;
+    const pills = days.map(d => {
+      const k = dkey(d), os = dayList(d), isT = k === dkey(now), fut = k > dkey(now), closed = d.getDay() === 1;
+      return `<button type="button" class="dp-pill ${k === sel ? "on" : ""} ${isT ? "is-today" : ""}" data-day="${k}" ${fut ? "disabled" : ""} aria-pressed="${k === sel}"><small>${isT ? L.today : L.days[d.getDay()]}</small><b>${d.getDate()}</b><span>${closed ? L.closed : fut ? "" : isT ? L.orders(os.length) : money(os.reduce((s, o) => s + o.total, 0))}</span></button>`;
     }).join("");
+    const selDate = days.find(d => dkey(d) === sel), isToday = sel === dkey(now), os = dayList(selDate);
+    let body;
+    if (isToday) {
+      const lane = (st, title, empty) => { const items = os.filter(o => o.status === st).sort((a, b) => a.mins - b.mins); return `<section class="lane l-${st}" aria-label="${title}"><h3><i></i>${title}<em>${items.length}</em></h3>${items.length ? `<ul>${items.map(o => ticket(o, true)).join("")}</ul>` : `<p>${empty}</p>`}</section>`; };
+      const done = os.filter(o => o.status === "done").sort((a, b) => b.mins - a.mins);
+      body = `<div class="board">${lane("new", L.lane.new, L.laneEmpty.new)}${lane("prep", L.lane.prep, L.laneEmpty.prep)}${lane("ready", L.lane.ready, L.laneEmpty.ready)}</div>
+        <details class="handed"${doneOpen ? " open" : ""}><summary>${L.st.done} <em>${done.length}</em></summary>${done.length ? `<ul class="tks">${done.map(o => ticket(o, false)).join("")}</ul>` : ""}</details>`;
+    } else {
+      const sum = os.reduce((s, o) => s + o.total, 0);
+      body = selDate.getDay() === 1 ? `<p class="empty">${L.closed}</p>` : `<p class="day-sum"><b>${money(sum)}</b> · ${L.orders(os.length)}</p><ul class="tks">${os.map(o => ticket(o, false)).join("")}</ul>`;
+    }
     $("orders").innerHTML = `<div class="band"><div><span>${L.ordersToday}</span><b>${n}</b></div><div><span>${L.salesToday}</span><b>${money(sales)}</b></div><div class="${left ? "hot" : ""}"><span>${L.waiting}</span><b>${left}</b></div></div>
-      <div class="wk-head"><div class="wk-nav"><button type="button" data-wk="-1" aria-label="Previous week">‹</button><h2>${range}</h2><button type="button" data-wk="1" aria-label="Next week" ${wo >= 0 ? "disabled" : ""}>›</button></div><p>${L.queueSub}</p></div>
-      <div class="strip" id="strip">${cols}</div>
-      <p class="demo" style="margin-top:24px">${L.demoNote}</p>`;
-    if (firstScroll && wo === 0) { const c = document.querySelector(".col.now"), st = $("strip"); if (c && st && !$("orders").hidden) { st.scrollLeft = Math.max(0, c.offsetLeft - st.offsetLeft - 8); firstScroll = false; } }
+      <div class="wk-head"><div class="wk-nav"><button type="button" data-wk="-1" aria-label="Previous week">‹</button><h2>${range}</h2><button type="button" data-wk="1" aria-label="Next week" ${wo >= 0 ? "disabled" : ""}>›</button></div></div>
+      <div class="dp-row">${pills}</div>${body}
+      <p class="demo" style="margin-top:28px">${L.demoNote}</p>`;
     renderTopTabs();
   }
+  let doneOpen = false;
+  document.addEventListener("toggle", e => { if (e.target.classList && e.target.classList.contains("handed")) doneOpen = e.target.open; }, true);
   const NEXT = { new: "prep", prep: "ready", ready: "done" };
   function advance(id) {
     const s = todaySample.find(o => o.id === id);
@@ -421,7 +484,8 @@ main { padding-block: 28px 80px; }
   function renderTopTabs() { const open = webOrders.filter(o => (o.status || "new") === "new").length; $("tab-orders").innerHTML = `${t().tabs.orders}${open ? `<span class="dot">${open}</span>` : ""}`; }
 
   document.addEventListener("click", e => {
-    const el = e.target.closest("[data-wk],[data-tab],[data-lang],[data-adv],[data-c],[data-sw],[data-rm],#pause,#noticeSave,#noticeClear,#addDish,#addCancel"); if (!el) return;
+    const el = e.target.closest("[data-day],[data-wk],[data-tab],[data-lang],[data-adv],[data-c],[data-sw],[data-rm],#pause,#noticeSave,#noticeClear,#addDish,#addCancel"); if (!el) return;
+    if (el.dataset.day) { sel = +el.dataset.day; return renderOrders(); }
     if (el.dataset.wk) { wo = Math.min(0, wo + +el.dataset.wk); return renderOrders(); }
     if (el.dataset.tab) return show(el.dataset.tab);
     if (el.dataset.lang) { lang = el.dataset.lang; try { localStorage.setItem("mca-dash-lang", lang); } catch (_) {} return renderAll(); }
@@ -449,7 +513,7 @@ main { padding-block: 28px 80px; }
     S.added.push({ id: "new-" + Date.now().toString(36), name: en, chinese: String(f.get("zh")).trim(), price, cat: String(f.get("cat")), description: String(f.get("desc")).trim() });
     save(); adding = false; mcat = String(f.get("cat")); renderMenu(); toast(t().added(en));
   });
-  window.addEventListener("storage", e => { if (e.key === OKEY) { webOrders = loadOrders(); renderOrders(); renderTopTabs(); } if (e.key === KEY) { S = load(); } });
+  window.addEventListener("storage", e => { if (e.key === OKEY) { const before = webOrders.length; webOrders = loadOrders(); if (webOrders.length > before) { const o = webOrders[webOrders.length - 1]; toast(lang === 'zh' ? `网站新订单：${esc(o.name)}` : `New website order from <b>${esc(o.name)}</b>`); } renderOrders(); renderTopTabs(); } if (e.key === KEY) { S = load(); } });
   window.addEventListener("focus", () => { webOrders = loadOrders(); S = load(); if (!$("orders").hidden) renderOrders(); renderTopTabs(); });
 
   renderAll(); renderTopTabs();
