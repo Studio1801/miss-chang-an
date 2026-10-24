@@ -47,6 +47,39 @@ main { padding-block: 28px 80px; }
 .sec-head h2 { font-size: clamp(22px, 3vw, 28px); }
 .sec-head p { margin: 0; color: var(--muted); font-size: 14.5px; }
 
+.band { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--ink); color: var(--bg); border-radius: 26px; padding: clamp(22px, 3vw, 34px) clamp(22px, 4vw, 48px); gap: 20px; margin-bottom: 26px; }
+.band span { color: #e4cdb0; font-size: 14.5px; display: block; }
+.band b { font-family: var(--serif); font-size: clamp(34px, 5.4vw, 58px); line-height: 1.1; display: block; margin-top: 4px; }
+.band .hot b { color: #ee8a73; }
+.wk-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+.wk-head p { margin: 0; color: var(--muted); font-size: 14.5px; }
+.wk-nav { display: flex; align-items: center; gap: 12px; }
+.wk-nav h2 { font-size: 22px; min-width: 150px; text-align: center; }
+.wk-nav button { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); background: var(--card); font-size: 22px; line-height: 1; }
+.wk-nav button:disabled { opacity: .35; cursor: default; }
+.strip { display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x proximity; padding-bottom: 14px; margin-inline: calc(-1 * max(20px, env(safe-area-inset-left))); padding-inline: max(20px, env(safe-area-inset-left)); scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+.col { flex: 0 0 min(290px, 80vw); scroll-snap-align: start; background: var(--card); border: 1px solid var(--line); border-radius: 24px; padding: 18px 14px 14px; align-self: flex-start; }
+.col.now { border: 2px solid var(--ink); background: #fffaf0; }
+.col header { padding: 0 6px 14px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; }
+.col header > div { display: flex; align-items: baseline; gap: 8px; }
+.col header small { color: var(--muted); font-size: 15px; }
+.col header b { font-family: var(--serif); font-size: 30px; line-height: 1; }
+.col header p { flex-basis: 100%; margin: 4px 0 0; color: var(--muted); font-size: 14.5px; }
+.today { margin-left: auto; color: var(--red); font-weight: 700; font-size: 13.5px; display: inline-flex; align-items: center; gap: 6px; }
+.today::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--red); }
+.col ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.oc { background: var(--paper); border-radius: 16px; padding: 12px 14px; display: grid; gap: 3px; }
+.oc.done { background: #f4e7c8; }
+.oc.done .oc-name, .oc.done .oc-top b { color: var(--muted); }
+.oc.web { background: #fff; box-shadow: 0 0 0 2px var(--red) inset; }
+.oc-top { display: flex; justify-content: space-between; font-size: 14px; color: var(--muted); }
+.oc-top b { color: var(--ink); font-variant-numeric: tabular-nums; }
+.oc-name { font-weight: 700; }
+.oc-what { color: var(--muted); font-size: 13.5px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.oc-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; }
+.oc-type { font-size: 13px; color: var(--muted); }
+.oc .act { width: 100%; margin-top: 8px; }
+.chip.done { background: rgba(0,0,0,.06); }
 .orders { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
 .order { display: grid; grid-template-columns: 76px 1fr auto auto; align-items: center; gap: 6px 18px; background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 16px 20px; }
 .order.web { border-color: var(--red); box-shadow: 0 0 0 1px var(--red) inset; }
@@ -142,6 +175,7 @@ main { padding-block: 28px 80px; }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 .demo { background: var(--paper); border-radius: 14px; padding: 10px 16px; font-size: 13.5px; color: var(--muted); margin-bottom: 20px; }
 
+@media (min-width: 801px) { .strip { margin-inline: 0; padding-inline: 0; } }
 @media (max-width: 800px) {
   .split { grid-template-columns: 1fr; }
   .dishes { grid-template-columns: 1fr; }
@@ -149,6 +183,7 @@ main { padding-block: 28px 80px; }
   .form { grid-template-columns: 1fr; } .form .full { grid-column: 1; }
 }
 @media (max-width: 560px) {
+  .band { grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 20px; } .band span { font-size: 12.5px; }
   .brand .bz { display: none; }
   .stats { grid-template-columns: 1fr 1fr; } .stat:first-child { grid-column: 1 / 3; }
   .order { grid-template-columns: 1fr auto; } .order .t { grid-column: 1 / 3; } .order .right { min-width: 0; }
@@ -286,24 +321,30 @@ main { padding-block: 28px 80px; }
     const web = webOrders.filter(o => dkey(new Date(o.at)) === dkey(now)).map(o => ({ id: o.id, web: true, name: o.name, mins: new Date(o.at).getHours() * 60 + new Date(o.at).getMinutes(), type: "pickup", total: o.total / 100, items: o.lines.map(l => ({ name: l.name, qty: l.qty })), status: o.status || "new", notes: o.notes }));
     return web.sort((a, b) => b.mins - a.mins).concat(todaySample.slice().reverse());
   }
+  let wo = 0, firstScroll = true;
+  function dayList(d) {
+    if (dkey(d) === dkey(now)) { const l = allToday(); return l.filter(o => o.status !== "done").concat(l.filter(o => o.status === "done")).sort((x, y) => (x.status === "done") - (y.status === "done") || (x.status === "done" ? x.mins - y.mins : y.mins - x.mins)); }
+    if (dkey(d) < dkey(now)) return dayOrders(d).map(o => ({ ...o, status: "done" }));
+    return [];
+  }
+  function card(o, live) {
+    const L = t(), what = o.items.map(i => `${i.qty > 1 ? i.qty + " x " : ""}${esc(i.name)}`).join(", ");
+    return `<li class="oc ${o.web ? "web" : ""} ${o.status === "done" ? "done" : ""}"><div class="oc-top"><span>${clock(o.mins)}</span><b>${money2(o.total)}</b></div><div class="oc-name">${esc(o.name)}${o.web ? `<span class="tag">${L.web}</span>` : ""}</div><div class="oc-what">${what}</div><div class="oc-foot"><span class="chip ${o.status}">${L.st[o.status]}</span><span class="oc-type">${L[o.type]}</span></div>${live && o.status !== "done" ? `<button type="button" class="act" data-adv="${o.id}">${L.go[o.status]}</button>` : ""}</li>`;
+  }
   function renderOrders() {
-    const L = t(), list = allToday(), n = list.length, sales = list.reduce((s, o) => s + o.total, 0), left = list.filter(o => o.status !== "done").length, pick = list.filter(o => o.type === "pickup").length;
-    const wk = weekDays(0);
-    const rows = list.map(o => {
-      const what = o.items.map(i => `${i.qty > 1 ? i.qty + " x " : ""}${esc(i.name)}`).join(", ");
-      return `<li class="order ${o.web ? "web" : ""}"><span class="t">${clock(o.mins)}</span><div><span class="who">${esc(o.name)}${o.web ? `<span class="tag">${L.web}</span>` : ""}</span><span class="what">${what}${o.notes ? ` · “${esc(o.notes)}”` : ""}</span></div><span class="amt">${money2(o.total)} · ${L[o.type]}</span><div class="right"><span class="chip ${o.status}">${L.st[o.status]}</span>${o.status !== "done" ? `<button type="button" class="act" data-adv="${o.id}">${L.go[o.status]}</button>` : ""}</div></li>`;
+    const L = t(), list = allToday(), n = list.length, sales = list.reduce((s, o) => s + o.total, 0), left = list.filter(o => o.status !== "done").length;
+    const days = Array.from({ length: 7 }, (_, i) => new Date(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate() + i + wo * 7));
+    const range = `${L.mon[days[0].getMonth()]} ${days[0].getDate()} – ${days[0].getMonth() === days[6].getMonth() ? "" : L.mon[days[6].getMonth()] + " "}${days[6].getDate()}`.replace("–", lang === "zh" ? "至" : "to");
+    const cols = days.map(d => {
+      const isToday = dkey(d) === dkey(now), os = dayList(d), sum = os.reduce((s, o) => s + o.total, 0), closed = d.getDay() === 1;
+      return `<section class="col ${isToday ? "now" : ""}" aria-label="${L.daysLong[d.getDay()]} ${d.getDate()}"><header><div><small>${L.days[d.getDay()]}</small><b>${d.getDate()}</b></div>${isToday ? `<span class="today">${L.today}</span>` : ""}<p>${closed ? L.closed : os.length ? `${money(sum)} · ${L.orders(os.length)}` : dkey(d) > dkey(now) ? "" : L.orders(0)}</p></header>${os.length ? `<ul>${os.map(o => card(o, isToday)).join("")}</ul>` : ""}</section>`;
     }).join("");
-    $("orders").innerHTML = `<div class="stats">
-      <div class="card stat"><span>${L.ordersToday}</span><b>${n}</b><small>${L.pickupN(pick)}</small></div>
-      <div class="card stat"><span>${L.salesToday}</span><b>${money(sales)}</b><small>${n ? L.avg(money2(sales / n)) : ""}</small></div>
-      <div class="card stat ${left ? "hot" : ""}"><span>${L.waiting}</span><b>${left}</b><small>${left ? "" : L.allDone}</small></div></div>
-      <div class="sec-head"><h2>${L.queue}</h2><p>${L.queueSub}</p></div>
-      ${n ? `<ul class="orders">${rows}</ul>` : `<p class="empty">${L.none}</p>`}
-      <div class="sec-head"><h2>${L.thisWeek}</h2></div>
-      <div class="week">${wk.map(w => `<div class="day ${w.isToday ? "now" : ""}"><small>${L.days[w.d.getDay()]}</small><b>${w.d.getDate()}</b><span>${w.d.getDay() === 1 ? L.closed : w.past || w.isToday ? money(w.sum) : "&nbsp;"}</span></div>`).join("")}</div>
+    $("orders").innerHTML = `<div class="band"><div><span>${L.ordersToday}</span><b>${n}</b></div><div><span>${L.salesToday}</span><b>${money(sales)}</b></div><div class="${left ? "hot" : ""}"><span>${L.waiting}</span><b>${left}</b></div></div>
+      <div class="wk-head"><div class="wk-nav"><button type="button" data-wk="-1" aria-label="Previous week">‹</button><h2>${range}</h2><button type="button" data-wk="1" aria-label="Next week" ${wo >= 0 ? "disabled" : ""}>›</button></div><p>${L.queueSub}</p></div>
+      <div class="strip" id="strip">${cols}</div>
       <p class="demo" style="margin-top:24px">${L.demoNote}</p>`;
-    const open = list.filter(o => o.web && o.status === "new").length;
-    $("tab-orders").innerHTML = `${L.tabs.orders}${open ? `<span class="dot">${open}</span>` : ""}`;
+    if (firstScroll && wo === 0) { const c = document.querySelector(".col.now"), st = $("strip"); if (c && st && !$("orders").hidden) { st.scrollLeft = Math.max(0, c.offsetLeft - st.offsetLeft - 8); firstScroll = false; } }
+    renderTopTabs();
   }
   const NEXT = { new: "prep", prep: "ready", ready: "done" };
   function advance(id) {
@@ -380,7 +421,8 @@ main { padding-block: 28px 80px; }
   function renderTopTabs() { const open = webOrders.filter(o => (o.status || "new") === "new").length; $("tab-orders").innerHTML = `${t().tabs.orders}${open ? `<span class="dot">${open}</span>` : ""}`; }
 
   document.addEventListener("click", e => {
-    const el = e.target.closest("[data-tab],[data-lang],[data-adv],[data-c],[data-sw],[data-rm],#pause,#noticeSave,#noticeClear,#addDish,#addCancel"); if (!el) return;
+    const el = e.target.closest("[data-wk],[data-tab],[data-lang],[data-adv],[data-c],[data-sw],[data-rm],#pause,#noticeSave,#noticeClear,#addDish,#addCancel"); if (!el) return;
+    if (el.dataset.wk) { wo = Math.min(0, wo + +el.dataset.wk); return renderOrders(); }
     if (el.dataset.tab) return show(el.dataset.tab);
     if (el.dataset.lang) { lang = el.dataset.lang; try { localStorage.setItem("mca-dash-lang", lang); } catch (_) {} return renderAll(); }
     if (el.dataset.adv) return advance(el.dataset.adv);
