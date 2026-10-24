@@ -9,7 +9,7 @@ import ChatWidget from './ChatWidget';
 import { RouteAccessibility } from './components/route-accessibility';
 import { useStatus } from './lib/hours';
 import { useReveal } from './lib/reveal';
-import { useLiveMenu } from './lib/menuState';
+import { useLiveMenu, useSiteState } from './lib/menuState';
 
 const ORDER_URL = '/order';
 const MAP_URL = 'https://www.google.com/maps/search/?api=1&query=Miss+Chang+An+5071+Rochester+Rd+Troy+MI+48085';
@@ -94,6 +94,12 @@ function PageMeta({ title, description }: { title: string; description: string }
 function OpenBadge({ tone = 'light' }: { tone?: 'light' | 'dark' }) {
   const status = useStatus();
   return <p className={`open-badge ${tone} ${status.open ? 'is-open' : 'is-closed'}`} role="status"><span className="open-dot" aria-hidden="true" /><strong>{status.label}</strong><span>{status.detail}</span></p>;
+}
+
+function NoticeBar() {
+  const { notice } = useSiteState();
+  if (!notice) return null;
+  return <div className="notice-bar" role="status"><div className="wrap">{notice}</div></div>;
 }
 
 function Header() {
@@ -181,6 +187,7 @@ function Faq() {
 function Home() {
   useReveal('home');
   const liveMenu = useLiveMenu(categories);
+  const site = useSiteState();
   const img = (name: string) => `${import.meta.env.BASE_URL}images/${name}`;
   return <>
     <PageMeta title="Miss Chang An 念长安 | Xi'an Noodles in Troy, MI" description="Miss Chang An is a family-owned Xi'an street food restaurant in Troy, Michigan. Hand-pulled noodles, cumin lamb roujiamo, liangpi, soup dumplings and boba. 5071 Rochester Rd. Order pickup online." />
@@ -202,7 +209,7 @@ function Home() {
       <div className="proof-head reveal"><span className="eyebrow">Loved locally</span><h2 id="proof-heading">Worth the trip.</h2></div>
       <div className="quote-grid">{quotes.map((q, i) => <figure className="quote reveal" style={{ transitionDelay: `${i * 90}ms` }} key={q}><blockquote>{`\u201C${q}\u201D`}</blockquote><figcaption>Google guest</figcaption></figure>)}</div>
     </div></section>
-    <QuickOrder categories={liveMenu} chowbusUrl={CHOWBUS_URL} phone={PHONE} />
+    <QuickOrder categories={liveMenu} chowbusUrl={CHOWBUS_URL} phone={PHONE} paused={site.paused} />
     <section className="about wrap reveal" id="about" aria-labelledby="about-heading"><div><span className="eyebrow">About us</span><h2 id="about-heading">Missing <em>Chang'an.</em></h2><p>Chang'an is the old name for Xi'an, the city at the start of the Silk Road. 念 means to miss someone, to keep a place in mind. So the menu is the food Xi'an eats on the street, made here by hand: pulled noodles, roujiamo, the Chinese burger, and cold liangpi in chili oil. Boba and smoothies go alongside.</p><p className="aside">We used to be Nook Tea &amp; Cafe. We still make the boba.</p><p className="keywords">Cold noodles · Chinese burger · Spicy flavor · Rich broth · Traditional taste</p></div><img className="about-photo" src={img('lamb-bread-soup.webp')} alt="Lamb bread soup with torn flatbread, wood ear and cilantro" loading="lazy" decoding="async" /></section>
     <section className="dishes" id="dishes" aria-labelledby="featured-heading"><div className="wrap"><div className="section-heading reveal"><div><span className="eyebrow">Our dishes</span><h2 id="featured-heading">Start here.</h2></div><p>Prices from our ordering page</p></div><div className="featured-grid">{featured.map((item, index) => <article className="featured-item reveal" style={{ transitionDelay: `${(index % 2) * 90}ms` }} key={item.name}><div className="featured-media"><img className={`featured-image featured-image-${index + 1}`} src={img(item.image)} alt={item.name} loading="lazy" decoding="async" /></div><div className="featured-row"><h3>{item.name}<span className="featured-cn zh" lang="zh">{item.chinese}</span></h3><span className="featured-price">{item.price}</span></div><p>{item.description}</p></article>)}</div><Link href="/menu" className="text-link dark featured-link" data-testid="link-featured-menu">See the full menu <ArrowUpRight size={16} aria-hidden="true" /></Link></div></section>
     <section className="how wrap" aria-labelledby="how-heading"><div className="how-head reveal"><span className="eyebrow">How to order</span><h2 id="how-heading">Three ways<br />in.</h2></div><div className="how-list">
@@ -266,7 +273,8 @@ function NotFound() {
 
 function App() {
   const live = useLiveMenu(categories);
-  return <><a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:bg-[#f7efe2] focus:p-4" data-testid="link-skip-content">Skip to content</a><Header /><main id="main-content" tabIndex={-1}><Switch><Route path="/" component={Home} /><Route path="/menu" component={MenuPage} /><Route path="/order"><PageMeta title="Order Pickup | Miss Chang An" description="Choose Miss Chang An dishes, review your basket and try our simple in-house pickup ordering flow." /><OrderPage categories={live} /></Route><Route path="/privacy">{() => <LegalPage type="privacy" />}</Route><Route path="/terms">{() => <LegalPage type="terms" />}</Route><Route component={NotFound} /></Switch></main><Footer /><ChatWidget categories={live} chowbusUrl={CHOWBUS_URL} phone={PHONE} instagram={INSTAGRAM_URL} mapUrl={MAP_URL} address={ADDRESS} /><RouteAccessibility /></>;
+  const siteState = useSiteState();
+  return <><a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:bg-[#f7efe2] focus:p-4" data-testid="link-skip-content">Skip to content</a><NoticeBar /><Header /><main id="main-content" tabIndex={-1}><Switch><Route path="/" component={Home} /><Route path="/menu" component={MenuPage} /><Route path="/order"><PageMeta title="Order Pickup | Miss Chang An" description="Choose Miss Chang An dishes, review your basket and try our simple in-house pickup ordering flow." /><OrderPage categories={live} paused={siteState.paused} /></Route><Route path="/privacy">{() => <LegalPage type="privacy" />}</Route><Route path="/terms">{() => <LegalPage type="terms" />}</Route><Route component={NotFound} /></Switch></main><Footer /><ChatWidget categories={live} chowbusUrl={CHOWBUS_URL} phone={PHONE} instagram={INSTAGRAM_URL} mapUrl={MAP_URL} address={ADDRESS} notice={siteState.notice} paused={siteState.paused} /><RouteAccessibility /></>;
 }
 
 export default App;

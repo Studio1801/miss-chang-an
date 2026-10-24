@@ -10,9 +10,9 @@ const thumbs: Record<string, string> = {
   'Soup dumplings, 6': 'soup-dumplings.webp',
 };
 
-type Props = { categories: Category[]; chowbusUrl: string; phone: string };
+type Props = { categories: Category[]; chowbusUrl: string; phone: string; paused?: boolean };
 
-export default function QuickOrder({ categories, chowbusUrl, phone }: Props) {
+export default function QuickOrder({ categories, chowbusUrl, phone, paused }: Props) {
   const [active, setActive] = useState(categories[0].id);
   const [qty, setQty] = useState<Record<string, number>>({});
   const current = categories.find(c => c.id === active) ?? categories[0];
@@ -42,6 +42,7 @@ export default function QuickOrder({ categories, chowbusUrl, phone }: Props) {
   const base = import.meta.env.BASE_URL;
 
   return <section className="qo" id="order-here" aria-labelledby="qo-heading"><div className="wrap">
+    {paused && <p className="qo-paused" role="status">Online ordering is paused right now because the kitchen is busy. Please call (313) 825-7757.</p>}
     <div className="qo-head reveal"><div><span className="eyebrow">Order here</span><h2 id="qo-heading">Build your order.</h2></div><p>Pick what you want, then finish on Chowbus or call the kitchen. Prices are starting prices.</p></div>
     <div className="qo-tabs" role="tablist" aria-label="Menu categories">
       {categories.map(c => <button key={c.id} type="button" role="tab" id={`qo-tab-${c.id}`} aria-selected={active === c.id} aria-controls="qo-panel" className={active === c.id ? 'on' : ''} onClick={() => setActive(c.id)} data-testid={`qo-tab-${c.id}`}>{c.title}</button>)}
@@ -63,7 +64,7 @@ export default function QuickOrder({ categories, chowbusUrl, phone }: Props) {
               </div>
               <div className="qo-buy">
                 <span className="qo-price">{it.soldOut ? 'Sold out' : it.price}</span>
-                {it.soldOut ? null : n === 0
+                {it.soldOut || paused ? null : n === 0
                   ? <button type="button" className="qo-add" aria-label={`Add ${it.name}`} onClick={() => change(key, 1)} data-testid={`qo-add-${key}`}><Plus size={18} aria-hidden="true" /></button>
                   : <span className="qo-step"><button type="button" aria-label={`Remove one ${it.name}`} onClick={() => change(key, -1)}><Minus size={15} aria-hidden="true" /></button><b aria-live="polite">{n}</b><button type="button" aria-label={`Add another ${it.name}`} onClick={() => change(key, 1)}><Plus size={15} aria-hidden="true" /></button></span>}
               </div>
@@ -78,7 +79,7 @@ export default function QuickOrder({ categories, chowbusUrl, phone }: Props) {
           : <ul className="qo-lines">{lines.map(l => <li key={l.key}><span>{l.qty} x {l.name}</span><span>{formatCents(l.cents * l.qty)}</span></li>)}</ul>}
         <div className="qo-total"><span>{anyFrom ? 'Subtotal, from' : 'Subtotal'}</span><strong>{formatCents(total)}</strong></div>
         {anyFrom && <p className="qo-note">Bun type, size and extras are picked on Chowbus and can change the price.</p>}
-        <a className={`button button-red qo-go ${count === 0 ? 'off' : ''}`} href={chowbusUrl} target="_blank" rel="noopener noreferrer" aria-disabled={count === 0} data-testid="qo-chowbus">Finish on Chowbus <ArrowRight size={18} aria-hidden="true" /></a>
+        <a className={`button button-red qo-go ${count === 0 || paused ? 'off' : ''}`} href={chowbusUrl} target="_blank" rel="noopener noreferrer" aria-disabled={count === 0 || paused} data-testid="qo-chowbus">Finish on Chowbus <ArrowRight size={18} aria-hidden="true" /></a>
         <a className="qo-call" href={phone}><Phone size={16} aria-hidden="true" /> Or call (313) 825-7757</a>
         <p className="qo-fine">This builder is a preview. Your picks are not sent to the kitchen until you finish on Chowbus or call.</p>
       </aside>

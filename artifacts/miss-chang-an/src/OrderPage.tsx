@@ -15,7 +15,7 @@ const STEPS: { id: Stage; label: string }[] = [
 ];
 const ADDRESS = '5071 Rochester Rd, Troy, MI 48085';
 
-export default function OrderPage({ categories }: { categories: Category[] }) {
+export default function OrderPage({ categories, paused }: { categories: Category[]; paused?: boolean }) {
   const [stage, setStage] = useState<Stage>('menu');
   const [{ qty, announce }, setBasket] = useState<{ qty: Record<string, number>; announce: string }>({ qty: {}, announce: '' });
   const [filter, setFilter] = useState('all');
@@ -76,7 +76,12 @@ export default function OrderPage({ categories }: { categories: Category[] }) {
   }
 
   function place() {
-    if (lines.length === 0) return;
+    if (lines.length === 0 || paused) return;
+    try {
+      const list = JSON.parse(localStorage.getItem('mca-orders') || '[]');
+      list.push({ id: `web-${Date.now()}`, at: Date.now(), name: name.trim(), phone: phone.trim(), notes: notes.trim(), total, status: 'new', lines: lines.map(l => ({ key: l.key, name: l.name, qty: l.qty, cents: l.cents })) });
+      localStorage.setItem('mca-orders', JSON.stringify(list.slice(-50)));
+    } catch { /* storage unavailable */ }
     setPlaced({ lines, total, name: name.trim() });
     setStage('done');
   }
@@ -221,11 +226,11 @@ export default function OrderPage({ categories }: { categories: Category[] }) {
               {notes.trim() && <div><dt>Notes</dt><dd>{notes.trim()}</dd></div>}
               <div><dt>Pickup at</dt><dd>Miss Chang An, {ADDRESS}</dd></div>
             </dl>
-            <p className="ord-note ord-preview" data-testid="text-preview-note">Preview only. No payment is taken and no order is sent to the restaurant.</p>
+            <p className="ord-note ord-preview" data-testid="text-preview-note">Preview only. No payment is taken and the real kitchen is not contacted. In the owner demo, this order appears in the back office dashboard.</p>
             <div className="ord-actions">
               <button type="button" className="ord-secondary" onClick={() => setStage('details')} data-testid="button-back">Edit details</button>
               <button type="button" className="ord-secondary" onClick={() => setStage('menu')} data-testid="button-edit-basket">Edit basket</button>
-              <button type="button" className="ord-primary" disabled={lines.length === 0} onClick={place} data-testid="button-submit">Confirm order</button>
+              <button type="button" className="ord-primary" disabled={lines.length === 0 || !!paused} onClick={place} data-testid="button-submit">Confirm order</button>
             </div>
           </div>
         )}
