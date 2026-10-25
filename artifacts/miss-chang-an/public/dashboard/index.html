@@ -1490,16 +1490,10 @@ html { scroll-behavior: smooth; }
   window.addEventListener("resize", () => { moveInk(); moveThumb(document.getElementById("langSeg")); });
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { moveInk(); moveThumb(document.getElementById("langSeg")); });
 
-  // Live: statuses update on their own and a new sample order comes in every minute or so
-  const nr = rng(seed + 7);
-  let nextArrival = Date.now() + 25000;
+  // Refresh statuses and saved website orders; never inject fake incoming orders.
   setInterval(() => {
-    const n = now();
-    let arrived = null;
-    if (Date.now() >= nextArrival && n < CLOSE - 15) { arrived = makeOrder(nr, n); orders.push(arrived); freshKey = arrived.placed; nextArrival = Date.now() + 120000 + nr() * 60000; }
     document.getElementById("today").textContent = t().daysLong[day.getDay()] + ", " + t().date(day) + " · " + clock(now());
     if (!busy && !document.getElementById("orders").hidden) renderOrders();
-    if (arrived) toast(t().newOrder(esc(arrived.name), t()[arrived.type], money(arrived.total)));
   }, 10000);
 
   const requestedCustomerOrder = readCustomerOrders().find(order => order.id === new URLSearchParams(location.search).get("order")) || readCustomerOrders()[0];
