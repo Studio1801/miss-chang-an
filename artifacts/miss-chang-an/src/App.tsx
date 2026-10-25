@@ -273,7 +273,7 @@ function NotFound() {
 
 function DashboardRedirect() {
   useEffect(() => {
-    window.location.replace(`/dashboard/index.html${window.location.hash}`);
+    window.location.replace(`${import.meta.env.BASE_URL}dashboard/index.html${window.location.search}${window.location.hash}`);
   }, []);
   return <div className="not-found"><p>Opening the staff dashboard…</p></div>;
 }

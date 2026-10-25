@@ -1009,7 +1009,10 @@ html { scroll-behavior: smooth; }
     const board = document.getElementById("confirmedDemoOrders");
     if (!board) return;
     const customerOrders = readCustomerOrders();
-    board.innerHTML = `<div class="demo-order-head"><div><span class="demo-order-label">Same-site browser demo</span><h2>Customer demo orders</h2></div><span class="k-note">${customerOrders.length} saved</span></div><p class="demo-order-empty">${customerOrders.length ? "Confirmed orders appear in the order list below with a Website demo label. The totals include them." : "No customer orders saved on this site in this browser yet."} <a href="/" target="_blank" rel="noopener">Open this site's ordering page</a>. Orders saved in Replit preview do not transfer to the separate Vercel site.</p>`;
+    const liveDashboard = location.hostname !== "miss-chang-an-nffg.vercel.app"
+      ? ' If you ordered on the live website, <a href="https://miss-chang-an-nffg.vercel.app/dashboard/">open the live Vercel dashboard</a> in the browser where you placed it.'
+      : "";
+    board.innerHTML = `<div class="demo-order-head"><div><span class="demo-order-label">Same-site browser demo</span><h2>Customer demo orders</h2></div><span class="k-note">${customerOrders.length} saved</span></div><p class="demo-order-empty">${customerOrders.length ? "Confirmed orders appear in the order list below with a Website demo label. The totals include them." : "No customer orders saved on this site in this browser yet."} <a href="../order">Open this site's ordering page</a>. Keep ordering and the dashboard in the same preview or browser tab. Replit preview and Vercel do not share demo orders.${liveDashboard}</p>`;
   }
   function clock(m) { m = Math.floor(m); const h = Math.floor(m / 60) % 24, mm = String(m % 60).padStart(2, "0"); return lang === "zh" ? ((h % 12) || 12) + ":" + mm + (h < 12 ? " 上午" : " 下午") : ((h % 12) || 12) + ":" + mm + (h >= 12 ? " pm" : " am"); }
 

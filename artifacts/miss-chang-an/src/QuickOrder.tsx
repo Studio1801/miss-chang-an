@@ -290,8 +290,8 @@ export default function QuickOrder({ categories }: Props) {
                 {notes.trim() && <p className="qo-review-notes"><strong>Notes:</strong> {notes.trim()}</p>}
                 {linesSummary()}
                 <div className="qo-total"><span>{anyFrom ? 'Starting total' : 'Total'}</span><strong>{formatCents(total)}{anyFrom ? '+' : ''}</strong></div>
-                <p className="qo-review-disclaimer">Demo only — confirming saves this order in this browser so it appears in the dashboard on this device. It is not sent to the restaurant.</p>
-                {confirmation && <p className="qo-confirmation" role="status"><Check size={18} aria-hidden="true" /> Demo order {confirmation} saved on this site. <a href={`${base}dashboard/?order=${encodeURIComponent(confirmation)}`} target="_blank" rel="noopener noreferrer" data-testid="qo-open-dashboard">Open its dashboard →</a></p>}
+                <p className="qo-review-disclaimer">Demo only: confirming saves this order on this site in this browser. Use the dashboard link below after confirming. It is not sent to the restaurant.</p>
+                {confirmation && <p className="qo-confirmation" role="status"><Check size={18} aria-hidden="true" /> Demo order {confirmation} saved on this site. <a href={`${base}dashboard/?order=${encodeURIComponent(confirmation)}`} data-testid="qo-open-dashboard">Open its dashboard →</a></p>}
                 {submitError && <p className="qo-error" role="alert">{submitError}</p>}
                 <div className="qo-step-actions">
                   <button type="button" className="button button-light" onClick={() => setStep('details')}><ArrowLeft size={17} /> Edit details</button>
