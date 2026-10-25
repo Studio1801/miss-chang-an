@@ -1,5 +1,6 @@
 {
   "rewrites": [
+    { "source": "/dashboard", "destination": "/dashboard/index.html" },
     { "source": "/((?!dashboard|images|assets|favicon|robots|sitemap).*)", "destination": "/index.html" }
   ]
 }

@@ -5,13 +5,13 @@ import type { Category } from './types/menu';
 import { useStatus } from './lib/hours';
 
 type Msg = { from: 'bot' | 'me'; body: ReactNode; id: number };
-type Props = { categories: Category[]; chowbusUrl: string; phone: string; instagram: string; mapUrl: string; address: string; notice?: string; paused?: boolean };
+type Props = { categories: Category[]; phone: string; instagram: string; mapUrl: string; address: string };
 
 const CHIPS = ['Are you open?', "What's spicy?", 'First time here', 'Order pickup', 'Allergies', 'Talk to a person'];
 const MEAT = /pork|lamb|beef|chicken|shrimp|meat|fish|bacon|sausage|duck|rib/i;
 const STOP = new Set(['the', 'and', 'you', 'have', 'any', 'do', 'does', 'what', 'with', 'for', 'your', 'got', 'can', 'get', 'want', 'how', 'much', 'are', 'there', 'some', 'please', 'menu', 'dish', 'dishes', 'food', 'about']);
 
-export default function ChatWidget({ categories, chowbusUrl, phone, instagram, mapUrl, address, notice, paused }: Props) {
+export default function ChatWidget({ categories, phone, instagram, mapUrl, address }: Props) {
   const status = useStatus();
   const [open, setOpen] = useState(false);
   const [text, setText] = useState('');
@@ -34,7 +34,7 @@ export default function ChatWidget({ categories, chowbusUrl, phone, instagram, m
   }, [open]);
 
   const list = (rows: typeof items) => <ul className="chat-list">{rows.map(r => <li key={r.id ?? r.name}><span>{r.name}{r.spice ? ` (${r.spice})` : ''}</span><span>{r.price}</span></li>)}</ul>;
-  const orderLinks = <p className="chat-links"><a href="#order-here" onClick={() => setOpen(false)}>Build an order on this page</a><a href={chowbusUrl} target="_blank" rel="noopener noreferrer">Order on Chowbus</a></p>;
+  const orderLinks = <p className="chat-links"><a href={`${import.meta.env.BASE_URL}order`} onClick={() => setOpen(false)}>Build a pickup order preview</a></p>;
   const callLinks = <p className="chat-links"><a href={phone}>Call (313) 825-7757</a><a href={instagram} target="_blank" rel="noopener noreferrer">Message on Instagram</a></p>;
 
   function answer(raw: string): ReactNode {
@@ -42,12 +42,11 @@ export default function ChatWidget({ categories, chowbusUrl, phone, instagram, m
     const has = (re: RegExp) => re.test(t);
     if (has(/\b(hi|hello|hey|yo)\b/) && t.length < 14) return <>Hi. What would you like to know?</>;
     if (has(/person|human|owner|staff|someone|talk|speak|call|phone|contact|number|text|dm|instagram/)) return <>This chat is a quick helper and does not reach the kitchen. For a real person, call or send an Instagram message.{callLinks}</>;
-    if (has(/open|close|hour|when|today|tonight|late|monday|sunday|saturday/)) return <><b>{status.label}</b> {status.detail}. We are open Tuesday to Sunday, 11:30 am to 9:00 pm, and closed Mondays.{notice && <p><b>Note:</b> {notice}</p>}</>;
+    if (has(/open|close|hour|when|today|tonight|late|monday|sunday|saturday/)) return <><b>{status.label}</b> {status.detail}. We are open Tuesday to Sunday, 11:30 am to 9:00 pm, and closed Mondays.</>;
     if (has(/where|address|direction|park|locat|find you|located/)) return <>{address}, on Rochester Road in Troy.<p className="chat-links"><a href={mapUrl} target="_blank" rel="noopener noreferrer">Get directions</a></p></>;
     if (has(/allerg|gluten|peanut|nut\b|nuts|shellfish|celiac|sesame|soy\b/)) return <>The kitchen uses wheat, soy, sesame, peanuts, egg and shellfish, so we cannot promise any dish is free of them. Tell us when you order, or call before you come.{callLinks}</>;
-    if (has(/deliver|doordash|uber|grubhub/)) return <>Delivery depends on your address. Check the Chowbus page for what is available to you, or call and ask.{orderLinks}</>;
-    if (paused && has(/order|pickup|pick up|takeout|take out|take-out|to go|checkout|pay/)) return <>Online ordering is paused right now because the kitchen is busy. Please call and we will take your order.{callLinks}</>;
-    if (has(/order|pickup|pick up|takeout|take out|take-out|to go|checkout|pay/)) return <>You can build an order right on this page, then finish on Chowbus. Or call and we will take it by phone.{orderLinks}</>;
+    if (has(/deliver|doordash|uber|grubhub/)) return <>This prototype is for pickup. Please call us to ask about delivery.{callLinks}</>;
+    if (has(/order|pickup|pick up|takeout|take out|take-out|to go|checkout|pay/)) return <>You can build a pickup order preview on our site. It is not submitted to the restaurant yet.{orderLinks}</>;
     if (has(/dumpling|xiao long|soup bun|how long|wait|ready|time/)) return <>Soup dumplings and noodles are made when you order. Allow 10 to 15 minutes for dumplings, a little less for most noodles.</>;
     if (has(/vegetarian|vegan|no meat|meatless/)) {
       const rows = items.filter(i => !MEAT.test(`${i.name} ${i.description ?? ''}`) && !/drink/i.test(i.cat)).slice(0, 6);

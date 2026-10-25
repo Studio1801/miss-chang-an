@@ -6,18 +6,18 @@ import type { Category } from '../types/menu';
 export const MENU_STATE_KEY = 'mca-menu-state';
 
 type Added = { id: string; name: string; chinese?: string; price: number; cat: string; description?: string };
-type State = { off: string[]; added: Added[]; prices: Record<string, number>; paused: boolean; notice: string };
+type State = { off: string[]; added: Added[] };
 
 function read(): State {
   try {
     const raw = JSON.parse(localStorage.getItem(MENU_STATE_KEY) || '{}');
-    return { off: Array.isArray(raw.off) ? raw.off : [], added: Array.isArray(raw.added) ? raw.added : [], prices: raw.prices && typeof raw.prices === 'object' ? raw.prices : {}, paused: !!raw.paused, notice: typeof raw.notice === 'string' ? raw.notice : '' };
+    return { off: Array.isArray(raw.off) ? raw.off : [], added: Array.isArray(raw.added) ? raw.added : [] };
   } catch {
-    return { off: [], added: [], prices: {}, paused: false, notice: '' };
+    return { off: [], added: [] };
   }
 }
 
-function useState_() {
+export function useLiveMenu(base: Category[]): Category[] {
   const [state, setState] = useState<State>(read);
   useEffect(() => {
     const sync = () => setState(read());
@@ -30,20 +30,10 @@ function useState_() {
       document.removeEventListener('visibilitychange', sync);
     };
   }, []);
-  return state;
-}
-
-export function useSiteState() {
-  const { paused, notice } = useState_();
-  return { paused, notice };
-}
-
-export function useLiveMenu(base: Category[]): Category[] {
-  const state = useState_();
   return useMemo(() => base.map(cat => ({
     ...cat,
     items: [
-      ...cat.items.map(item => ({ ...item, price: item.id && state.prices[item.id] != null ? `${/^from/i.test(item.price) ? 'From ' : ''}$${Number(state.prices[item.id]).toFixed(2)}` : item.price, soldOut: !!item.id && state.off.includes(item.id) })),
+      ...cat.items.map(item => ({ ...item, soldOut: !!item.id && state.off.includes(item.id) })),
       ...state.added.filter(a => a.cat === cat.id).map(a => ({
         id: a.id, name: a.name, chinese: a.chinese || undefined, description: a.description || undefined,
         price: `$${Number(a.price).toFixed(2)}`, soldOut: state.off.includes(a.id), isNew: true,
