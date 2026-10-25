@@ -101,6 +101,9 @@ body.swapping main, body.swapping .tabs { opacity: .72; }
 .demo-order-customer { font-weight: 800; }
 .demo-order-meta, .demo-order-items, .demo-order-notes { color: var(--muted); font-size: 13px; overflow-wrap: anywhere; }
 .demo-order-total { font-weight: 800; white-space: nowrap; text-align: right; }
+.order.website-demo { background: #fffaf0; border-left: 3px solid var(--red); padding-left: 14px; }
+.website-order-tag { display: inline-block; margin-left: 8px; font-size: 10px; color: var(--red); font-weight: 800; text-transform: uppercase; letter-spacing: .04em; }
+.o-customer-note { display: block; margin-top: 5px; font-size: 12px; color: var(--muted); overflow-wrap: anywhere; }
 @media (max-width: 640px) { .demo-order-card { grid-template-columns: 1fr auto; } .demo-order-items, .demo-order-notes { grid-column: 1/-1; } }
 .order { display: grid; grid-template-columns: 5.2em minmax(0, 1fr) auto auto; gap: 4px 18px; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--line); }
 .order.fresh { animation: arrive .7s ease-out; }
@@ -959,22 +962,48 @@ html { scroll-behavior: smooth; }
   const money0 = n => n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const DEMO_ORDERS_KEY = "mca-demo-pickup-orders-v1";
+  const DEMO_ORDER_KEYS = [DEMO_ORDERS_KEY, "mca-orders"];
+  function readCustomerOrders() {
+    const found = new Map();
+    for (const storageKey of DEMO_ORDER_KEYS) {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(storageKey) || "[]");
+        if (!Array.isArray(parsed)) continue;
+        for (const row of parsed) {
+          if (!row || typeof row.id !== "string" || typeof row.name !== "string" || found.has(row.id)) continue;
+          const rawItems = Array.isArray(row.items) ? row.items : row.lines;
+          const at = new Date(row.createdAt || row.at);
+          const cents = Number(row.totalCents ?? row.total);
+          if (!Array.isArray(rawItems) || !rawItems.length || !Number.isFinite(at.getTime()) || !Number.isFinite(cents) || cents < 0) continue;
+          const items = rawItems.filter(item => item && typeof item.name === "string").map((item, i) => ({
+            id: `website-${row.id}-${i}`, q: Math.max(1, Number(item.quantity ?? item.qty) || 1),
+            name: item.name, chinese: item.chinese || "", price: Number(item.unitCents ?? item.cents) / 100 || 0
+          }));
+          if (!items.length) continue;
+          found.set(row.id, { id: row.id, web: true, createdAt: at.getTime(), date: at, name: row.name,
+            phone: typeof row.phone === "string" ? row.phone : "", notes: typeof row.notes === "string" ? row.notes : "",
+            type: "pickup", placed: at.getHours() * 60 + at.getMinutes(), total: cents / 100, items,
+            customerStatus: row.status, sched: null });
+        }
+      } catch (_) {}
+    }
+    return [...found.values()].sort((a, b) => b.createdAt - a.createdAt);
+  }
+  function syncCustomerOrders() {
+    for (const d of DAYS) {
+      for (let i = d.orders.length - 1; i >= 0; i--) if (d.orders[i].web) d.orders.splice(i, 1);
+    }
+    for (const order of readCustomerOrders()) {
+      const target = BY_KEY[key(order.date)] || DAYS[DAYS.length - 1];
+      target.orders.push(order);
+      for (const item of order.items) BY_ID[item.id] = { id: item.id, en: item.name, zh: item.chinese, price: item.price, w: 0, drink: false };
+    }
+  }
   function renderConfirmedDemoOrders() {
     const board = document.getElementById("confirmedDemoOrders");
     if (!board) return;
-    let orders = [];
-    try {
-      const parsed = JSON.parse(localStorage.getItem(DEMO_ORDERS_KEY) || "[]");
-      if (Array.isArray(parsed)) orders = parsed.filter(o => o && typeof o.id === "string" && typeof o.name === "string" && Array.isArray(o.items));
-    } catch (_) {}
-    board.innerHTML = `<div class="demo-order-head"><div><span class="demo-order-label">Same-browser demo</span><h2>Customer demo orders <span class="dot-new" aria-hidden="true"></span></h2></div><span class="k-note">${orders.length} saved</span></div>` +
-      (orders.length ? `<div class="demo-order-list">${orders.map(order => {
-        const items = order.items.map(item => `${Math.max(1, Number(item.quantity) || 1)} × ${esc(item.name || "Menu item")}`).join(", ");
-        const total = Number(order.totalCents);
-        const when = new Date(order.createdAt);
-        const time = Number.isFinite(when.getTime()) ? when.toLocaleString() : "";
-        return `<article class="demo-order-card"><div><div class="demo-order-customer">${esc(order.name)}</div><div class="demo-order-meta">${esc(order.id)} · ${esc(time)}</div>${order.phone ? `<div class="demo-order-meta">${esc(order.phone)}</div>` : ""}</div><div class="demo-order-items">${items}${order.notes ? `<div class="demo-order-notes">Note: ${esc(order.notes)}</div>` : ""}</div><div class="demo-order-total">${Number.isFinite(total) ? money(total / 100) : "—"}<div class="demo-order-meta">${esc(order.status || "New")}</div></div></article>`;
-      }).join("")}</div>` : `<p class="demo-order-empty">No customer demo orders yet. Confirm one from the website to see it here.</p>`);
+    const customerOrders = readCustomerOrders();
+    board.innerHTML = `<div class="demo-order-head"><div><span class="demo-order-label">Same-site browser demo</span><h2>Customer demo orders</h2></div><span class="k-note">${customerOrders.length} saved</span></div><p class="demo-order-empty">${customerOrders.length ? "Confirmed orders appear in the order list below with a Website demo label. The totals include them." : "No customer orders saved on this site in this browser yet."} <a href="/" target="_blank" rel="noopener">Open this site's ordering page</a>. Orders saved in Replit preview do not transfer to the separate Vercel site.</p>`;
   }
   function clock(m) { m = Math.floor(m); const h = Math.floor(m / 60) % 24, mm = String(m % 60).padStart(2, "0"); return lang === "zh" ? ((h % 12) || 12) + ":" + mm + (h < 12 ? " 上午" : " 下午") : ((h % 12) || 12) + ":" + mm + (h >= 12 ? " pm" : " am"); }
 
@@ -1081,8 +1110,9 @@ html { scroll-behavior: smooth; }
   }
 
   // Status is worked out from the clock, nobody has to tap anything
-  function statusIn(d, o, n) { return d.today ? statusOf(o, n) : d.future ? "later" : "done"; }
+  function statusIn(d, o, n) { return o.web || d.today ? statusOf(o, n) : d.future ? "later" : "done"; }
   function statusOf(o, n) {
+    if (o.web) return o.customerStatus === "Picked up" || o.customerStatus === "done" ? "done" : "wait";
     const readyBy = o.sched ? o.sched : o.placed + o.doneAfter;
     if (o.sched && n < o.sched - 20) return "later";
     if (n < readyBy) return "wait";
@@ -1090,12 +1120,14 @@ html { scroll-behavior: smooth; }
   }
 
   // ---------- Orders tab ----------
-  let owk = 0, zoomKey = null, freshKey = null, needScroll = true;
+  let owk = 0, zoomKey = readCustomerOrders().length ? key(day) : null, freshKey = null, needScroll = true;
   const dayOrders = d => d.future ? (FUTURE[key(d.dt)] || []) : d.orders;
-  const stLabel = (st, o) => st === "later" ? t().st.later(clock(o.sched)) : st === "wait" ? t().st.wait : (o.type === "pickup" ? t().st.pickedUp : t().st.delivered);
-  const sortOs = list => list.slice().sort((x, y) => (x.sched || x.placed) - (y.sched || y.placed));
+  const stLabel = (st, o) => o.web && st === "wait" ? (lang === "zh" ? "新订单" : "New") : st === "later" ? t().st.later(clock(o.sched)) : st === "wait" ? t().st.wait : (o.type === "pickup" ? t().st.pickedUp : t().st.delivered);
+  const sortOs = list => list.slice().sort((x, y) => Number(!!y.web) - Number(!!x.web) || (x.web && y.web ? y.createdAt - x.createdAt : (x.sched || x.placed) - (y.sched || y.placed)));
   function renderOrders(opt) {
     opt = opt || {};
+    syncCustomerOrders();
+    renderConfirmedDemoOrders();
     const n = now();
     const sales = orders.reduce((x, o) => x + o.total, 0);
     const waiting = orders.filter(o => statusOf(o, n) === "wait").length;
@@ -1154,9 +1186,9 @@ html { scroll-behavior: smooth; }
         <button type="button" class="arrow" data-go="${pv}" aria-label="${t().prevDay}"${pv ? "" : " disabled"}>‹</button>
         <button type="button" class="arrow" data-go="${nx}" aria-label="${t().nextDay}"${nx ? "" : " disabled"}>›</button></div>
       <div class="kpis hero">${kpi(t().dayOrders, os.length, "", false, ["z-n-" + zoomKey, "int"])}${kpi(t().daySales, money0(os.reduce((x, o) => x + o.total, 0)), "", false, ["z-s-" + zoomKey, "money0", os.reduce((x, o) => x + o.total, 0)])}${kpi(t().dayPickup + " / " + t().dayDelivery, pk.length + " / " + (os.length - pk.length), "")}</div>
-      <ul class="orders">${os.length ? os.map(o => { const st = statusIn(d, o, n); return `<li class="order">
+      <ul class="orders">${os.length ? os.map(o => { const st = statusIn(d, o, n); return `<li class="order${o.web ? " website-demo" : ""}"${o.web ? ` data-customer-order="${esc(o.id)}"` : ""}>
         <span class="o-time">${clock(o.sched || o.placed)}</span>
-        <span class="o-who"><span class="o-name">${esc(o.name)}</span><span class="o-type">${t()[o.type]}</span><span class="o-items">${esc(o.items.map(it => it.q + " " + nameOf(BY_ID[it.id])).join(", "))}</span></span>
+        <span class="o-who"><span class="o-name">${esc(o.name)}</span>${o.web ? `<span class="website-order-tag">Website demo</span>` : ""}<span class="o-type">${t()[o.type]}</span><span class="o-items">${esc(o.items.map(it => it.q + " " + nameOf(BY_ID[it.id])).join(", "))}</span>${o.web ? `<span class="o-customer-note">${esc(o.id)}${o.phone ? " · " + esc(o.phone) : ""}</span>${o.notes ? `<span class="o-customer-note">Note: ${esc(o.notes)}</span>` : ""}` : ""}</span>
         <span class="o-total">${money(o.total)}</span><span class="status ${st}">${stLabel(st, o)}</span></li>`; }).join("") : `<li class="order"><span class="c-empty" style="grid-column:1/-1">${d.future ? t().upcoming : t().noOrders}</span></li>`}</ul>
     </div>`;
     const z = view.querySelector(".zoom");
@@ -1436,7 +1468,19 @@ html { scroll-behavior: smooth; }
     tb.addEventListener("keydown", e => { if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return; const nx = tabs[(i + (e.key === "ArrowRight" ? 1 : tabs.length - 1)) % tabs.length]; nx.focus(); show(nx.getAttribute("aria-controls")); });
   });
   window.addEventListener("scroll", () => document.querySelector(".top").classList.toggle("scrolled", window.scrollY > 4), { passive: true });
-  window.addEventListener("storage", event => { if (event.key === DEMO_ORDERS_KEY || event.key === null) renderConfirmedDemoOrders(); });
+  let latestCustomerId = readCustomerOrders()[0]?.id;
+  function refreshCustomerOrders() {
+    const latest = readCustomerOrders()[0];
+    if (latest) { owk = 0; zoomKey = BY_KEY[key(latest.date)] ? key(latest.date) : key(day); }
+    renderOrders();
+    if (latest && latest.id !== latestCustomerId) {
+      latestCustomerId = latest.id;
+      toast(`New website demo order from <b>${esc(latest.name)}</b>`);
+    }
+  }
+  window.addEventListener("storage", event => { if (DEMO_ORDER_KEYS.includes(event.key) || event.key === null) refreshCustomerOrders(); });
+  window.addEventListener("focus", refreshCustomerOrders);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) refreshCustomerOrders(); });
   window.addEventListener("resize", () => { moveInk(); moveThumb(document.getElementById("langSeg")); });
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { moveInk(); moveThumb(document.getElementById("langSeg")); });
 
@@ -1452,8 +1496,18 @@ html { scroll-behavior: smooth; }
     if (arrived) toast(t().newOrder(esc(arrived.name), t()[arrived.type], money(arrived.total)));
   }, 10000);
 
+  const requestedCustomerOrder = readCustomerOrders().find(order => order.id === new URLSearchParams(location.search).get("order")) || readCustomerOrders()[0];
+  if (requestedCustomerOrder) {
+    const target = BY_KEY[key(requestedCustomerOrder.date)] || DAYS[DAYS.length - 1];
+    const weekStart = date => { const value = new Date(date); value.setDate(value.getDate() - (value.getDay() + 6) % 7); value.setHours(12, 0, 0, 0); return value; };
+    owk = Math.max(0, Math.min(maxBack, Math.round((weekStart(day) - weekStart(target.dt)) / 604800000)));
+    zoomKey = key(target.dt);
+  }
   renderTop(); renderSite(); renderMenu(); renderConfirmedDemoOrders();
   const h = (location.hash || "").slice(1);
   show(["orders", "sales", "menu", "reservations", "chat", "site"].includes(h) ? h : "orders");
+  if (requestedCustomerOrder && new URLSearchParams(location.search).has("order")) requestAnimationFrame(() => {
+    [...document.querySelectorAll("[data-customer-order]")].find(row => row.dataset.customerOrder === requestedCustomerOrder.id)?.scrollIntoView({ block: "center" });
+  });
 })();
 </script>

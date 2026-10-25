@@ -29,6 +29,7 @@ export default function QuickOrder({ categories }: Props) {
   const [errors, setErrors] = useState<{ name?: string; phone?: string }>({});
   const [confirmation, setConfirmation] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState('');
+  const confirmationLock = useRef(false);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const tabsRef = useRef<HTMLDivElement>(null);
   const indicatorRef = useRef<HTMLSpanElement>(null);
@@ -108,6 +109,7 @@ export default function QuickOrder({ categories }: Props) {
   }
 
   function restart() {
+    confirmationLock.current = false;
     setQty({});
     setName('');
     setPhoneNumber('');
@@ -119,12 +121,14 @@ export default function QuickOrder({ categories }: Props) {
   }
 
   function confirmDemoOrder() {
+    if (confirmationLock.current || confirmation || !lines.length || !name.trim()) return;
+    confirmationLock.current = true;
     setSubmitError('');
     try {
       const stored = localStorage.getItem(DEMO_ORDERS_KEY);
       const currentOrders: unknown = stored ? JSON.parse(stored) : [];
       if (!Array.isArray(currentOrders)) throw new Error('Invalid demo order storage');
-      const id = `MCA-${Date.now().toString(36).toUpperCase()}`;
+      const id = `MCA-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
       const order = {
         id,
         name: name.trim(),
@@ -143,8 +147,11 @@ export default function QuickOrder({ categories }: Props) {
         status: 'New',
       };
       localStorage.setItem(DEMO_ORDERS_KEY, JSON.stringify([order, ...currentOrders].slice(0, 100)));
+      const saved = JSON.parse(localStorage.getItem(DEMO_ORDERS_KEY) || '[]');
+      if (!Array.isArray(saved) || !saved.some((item: { id?: string } | null) => item?.id === id)) throw new Error('Demo order was not saved');
       setConfirmation(id);
     } catch {
+      confirmationLock.current = false;
       setSubmitError('This browser could not save the demo order. Check that site storage is enabled, then try again.');
     }
   }
@@ -284,7 +291,7 @@ export default function QuickOrder({ categories }: Props) {
                 {linesSummary()}
                 <div className="qo-total"><span>{anyFrom ? 'Starting total' : 'Total'}</span><strong>{formatCents(total)}{anyFrom ? '+' : ''}</strong></div>
                 <p className="qo-review-disclaimer">Demo only — confirming saves this order in this browser so it appears in the dashboard on this device. It is not sent to the restaurant.</p>
-                {confirmation && <p className="qo-confirmation" role="status"><Check size={18} aria-hidden="true" /> Demo order {confirmation} is in the dashboard.</p>}
+                {confirmation && <p className="qo-confirmation" role="status"><Check size={18} aria-hidden="true" /> Demo order {confirmation} saved on this site. <a href={`${base}dashboard/?order=${encodeURIComponent(confirmation)}`} target="_blank" rel="noopener noreferrer" data-testid="qo-open-dashboard">Open its dashboard →</a></p>}
                 {submitError && <p className="qo-error" role="alert">{submitError}</p>}
                 <div className="qo-step-actions">
                   <button type="button" className="button button-light" onClick={() => setStep('details')}><ArrowLeft size={17} /> Edit details</button>

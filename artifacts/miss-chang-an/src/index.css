@@ -476,7 +476,8 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 700; }
 .qo-review-card .qo-total { margin-top: 0; padding-top: 18px; }
 .qo-review-card .qo-total strong { font-size: 32px; }
 .qo-review-disclaimer { margin: 20px 0 0; padding: 12px 14px; border-radius: 14px; background: #f4dfd3; color: #7f2c1e; font-size: 13px; line-height: 1.45; }
-.qo-confirmation { display: flex; align-items: center; gap: 9px; margin: 14px 0 0; color: #28563d; font-weight: 700; }
+.qo-confirmation { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; margin: 14px 0 0; color: #28563d; font-weight: 700; }
+.qo-confirmation a { text-decoration: underline; text-underline-offset: 3px; }
 .qo-step-actions .button:disabled { cursor: default; opacity: .72; }
 .qo-reset { display: block; margin: 18px auto 0; padding: 8px 12px; border: 0; background: transparent; color: var(--smoke); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 
